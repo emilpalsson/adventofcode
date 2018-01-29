@@ -1,0 +1,14 @@
+{
+  "name": "adventofcode",
+  "version": "1.0.0",
+  "description": "My Advent of Code solutions.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emilpalsson/adventofcode.git"
+  },
+  "author": "Emil Pålsson <emil@emilpalsson.se> (https://github.com/emilpalsson)",
+  "license": "MIT",
+  "dependencies": {
+    "md5": "^2.2.1"
+  }
+}
