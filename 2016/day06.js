@@ -1,20 +1,20 @@
 var { getInput, range } = require("./utils.js");
-const input = getInput(6, true)
-const message = range(input[0].length).map(() => [])
+const input = getInput(6, true);
+const message = range(input[0].length).map(() => []);
 input.forEach(row => {
-  row.split('').forEach((char, index) => message[index].push(char))
-})
+  row.split("").forEach((char, index) => message[index].push(char));
+});
 
 const mode = (chars, mostCommon = true) => {
-  const modeMap = {}
-  chars.forEach(c => modeMap[c] = !modeMap[c] ? 1 : modeMap[c] + 1)
-  const arr = Object.keys(modeMap).map(char => ({ char, count: modeMap[char] }))
-  arr.sort((a, b) => b.count - a.count)
-  return mostCommon ? arr[0].char : arr[arr.length-1].char
-}
+  const modeMap = {};
+  chars.forEach(c => (modeMap[c] = !modeMap[c] ? 1 : modeMap[c] + 1));
+  const arr = Object.keys(modeMap).map(c => ({ char: c, count: modeMap[c] }));
+  arr.sort((a, b) => b.count - a.count);
+  return mostCommon ? arr[0].char : arr[arr.length - 1].char;
+};
 
-const part1 = () => message.map(chars => mode(chars)).join('')
-const part2 = () => message.map(chars => mode(chars, false)).join('')
+const part1 = () => message.map(chars => mode(chars)).join("");
+const part2 = () => message.map(chars => mode(chars, false)).join("");
 
-console.log('#1:', part1())
-console.log('#2:', part2())
+console.log("#1:", part1());
+console.log("#2:", part2());
