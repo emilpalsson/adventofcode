@@ -1,4 +1,4 @@
-var { getInput } = require("./utils.js");
+var { getInput } = require("../utils");
 const rooms = getInput(4, true)
   .map(r => /([a-z-]+)-(\d+)\[(.+)]/.exec(r))
   .map(r => ({

@@ -1,4 +1,4 @@
-var { getInput } = require("./utils.js");
+var { getInput } = require("../utils");
 const ipList = getInput(7, true);
 const hypernetRegex = /\[[a-z]+\]/g;
 

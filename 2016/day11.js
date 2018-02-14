@@ -1,4 +1,4 @@
-const { getInput, range } = require("./utils.js");
+const { getInput, range } = require("../utils");
 const input = getInput(11, true);
 
 const parseInput = () => {

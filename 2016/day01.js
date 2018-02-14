@@ -1,4 +1,4 @@
-var { getInput, range } = require("./utils.js");
+var { getInput, range } = require("../utils");
 const commands = getInput(1).split(", ");
 
 /* prettier-ignore */

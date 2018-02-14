@@ -1,4 +1,4 @@
-var { getInput, range } = require("./utils.js");
+var { getInput, range } = require("../utils");
 const rows = getInput(2, true).map(row => row.split(""));
 
 const getCode = numpadLayout => {

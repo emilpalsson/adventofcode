@@ -1,4 +1,4 @@
-var { getInput, range } = require("./utils.js");
+var { getInput, range } = require("../utils");
 const rows = getInput(3, true).map(r =>
   r.match(/\d+/g).map(x => parseInt(x, 10))
 );

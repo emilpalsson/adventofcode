@@ -1,4 +1,4 @@
-const { getInput, range } = require("./utils.js");
+const { getInput, range } = require("../utils");
 const commands = getInput(12, true).map(x => x.split(" "));
 
 const day12 = registers => {

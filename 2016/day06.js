@@ -1,4 +1,4 @@
-var { getInput, range } = require("./utils.js");
+var { getInput, range } = require("../utils");
 const input = getInput(6, true);
 const message = range(input[0].length).map(() => []);
 input.forEach(row => {

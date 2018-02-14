@@ -1,4 +1,4 @@
-const { getInput } = require("./utils.js");
+const { getInput } = require("../utils");
 const input = getInput(9);
 
 const replaceAt = (value, index, length, newString = "") =>

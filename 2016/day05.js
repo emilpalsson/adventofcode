@@ -1,5 +1,5 @@
 var md5 = require("md5");
-var { getInput, range } = require("./utils.js");
+var { getInput, range } = require("../utils");
 const input = getInput(5);
 
 const part1 = () => {
