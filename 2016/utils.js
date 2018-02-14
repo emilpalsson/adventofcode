@@ -5,7 +5,7 @@ const getInput = (day, splitRows) => {
     "day" + day.toString().padStart(2, "0") + ".txt",
     "utf8"
   );
-  return splitRows ? input.split("\n") : input;
+  return splitRows ? input.split(/\r\n|\r|\n/) : input;
 };
 
 const range = size => [...Array(size).keys()];
