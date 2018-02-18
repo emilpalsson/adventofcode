@@ -46,23 +46,7 @@ const astar = (start, goal, getNeighbors) => {
     openSet.splice(openSet.indexOf(current.id), 1);
     nodes[current.id].closed = true;
 
-    const neighbors = getNeighbors(current.cords)
-      // .filter(n => n[0] !== 0 || n[1] !== 2)
-      // .filter(n => n[0] !== 1 || n[1] !== 2)
-      // .filter(n => n[0] !== 2 || n[1] !== 2)
-      // .filter(n => n[0] !== 2 || n[1] !== 1)
-      // .filter(n => n[0] !== 4 || n[1] !== 0)
-      // .filter(n => n[0] !== 4 || n[1] !== 1)
-      // .filter(n => n[0] !== 4 || n[1] !== 2)
-      // .filter(n => n[0] !== 4 || n[1] !== 3)
-      // .filter(n => n[0] !== 4 || n[1] !== 4)
-      // .filter(n => n[0] !== 3 || n[1] !== 4)
-      // .filter(n => n[0] !== 2 || n[1] !== 4)
-      // .filter(n => n[0] !== 1 || n[1] !== 4)
-      // .filter(n => n[0] !== 1 || n[1] !== 5)
-      // .filter(n => n[0] !== 1 || n[1] !== 6)
-      .map(n => NodeModel(n));
-
+    const neighbors = getNeighbors(current.cords).map(n => NodeModel(n));
     neighbors.forEach(neighbor => {
       if (!nodes[neighbor.id]) {
         // New node found, add to node list and openSet
@@ -91,17 +75,4 @@ const astar = (start, goal, getNeighbors) => {
   return false;
 };
 
-const cost = astar(
-  [1, 1],
-  [2, 5],
-  (getNeighbors = pos =>
-    pos[0] >= 0 && pos[0] <= 50 && pos[1] >= 0 && pos[1] <= 50
-      ? [
-          [pos[0], pos[1] - 1],
-          [pos[0] + 1, pos[1]],
-          [pos[0], pos[1] + 1],
-          [pos[0] - 1, pos[1]]
-        ]
-      : [])
-);
-console.log(cost);
+module.exports = { astar };
