@@ -10,4 +10,6 @@ const getInput = (day, splitRows) => {
 
 const range = size => [...Array(size).keys()];
 
-module.exports = { getInput, range };
+const reverse = value => value.split('').reverse().join('') // prettier-ignore
+
+module.exports = { getInput, range, reverse };
