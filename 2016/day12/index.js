@@ -1,5 +1,5 @@
-const { getInput, range } = require("../utils");
-const commands = getInput(12, true).map(x => x.split(" "));
+const { getInput, range } = require("../../utils");
+const commands = getInput(true).map(x => x.split(" "));
 
 const day12 = registers => {
   let pos = 0;

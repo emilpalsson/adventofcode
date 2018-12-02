@@ -1,5 +1,5 @@
-var { getInput, range } = require("../utils");
-const input = getInput(18)
+var { getInput, range } = require("../../utils");
+const input = getInput()
   .split("")
   .map(x => x === "^");
 

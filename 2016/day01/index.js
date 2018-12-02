@@ -1,5 +1,5 @@
-var { getInput, range } = require("../utils");
-const commands = getInput(1).split(", ");
+var { getInput, range } = require("../../utils");
+const commands = getInput().split(", ");
 
 /* prettier-ignore */
 const turn = (direction, command) => {

@@ -1,5 +1,5 @@
-var { getInput, reverse } = require("../utils");
-const input = getInput(16);
+var { getInput, reverse } = require("../../utils");
+const input = getInput();
 
 const generateData = (data, length) => {
   while (data.length < length) {

@@ -1,6 +1,6 @@
 var md5 = require("md5");
-var { getInput, range } = require("../utils");
-const input = getInput(5);
+var { getInput, range } = require("../../utils");
+const input = getInput();
 
 const part1 = () => {
   let seed = 0;

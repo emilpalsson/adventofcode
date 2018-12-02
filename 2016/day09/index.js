@@ -1,5 +1,5 @@
-const { getInput } = require("../utils");
-const input = getInput(9);
+const { getInput } = require("../../utils");
+const input = getInput();
 
 const replaceAt = (value, index, length, newString = "") =>
   value.slice(0, index - 0) + newString + value.slice(index + length);

@@ -1,5 +1,5 @@
-const { getInput } = require("../utils");
-const input = getInput(10, true).map(row => row.split(" "));
+const { getInput } = require("../../utils");
+const input = getInput(true).map(row => row.split(" "));
 
 const instructions = {};
 const bots = [];

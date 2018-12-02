@@ -1,6 +1,6 @@
 const md5 = require("md5");
-var { getInput } = require("../utils");
-const input = getInput(17);
+var { getInput } = require("../../utils");
+const input = getInput();
 
 let shortestSolution;
 let longestSolutionLength = 0;

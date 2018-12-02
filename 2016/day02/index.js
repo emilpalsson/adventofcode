@@ -1,5 +1,5 @@
-var { getInput, range } = require("../utils");
-const rows = getInput(2, true).map(row => row.split(""));
+var { getInput, range } = require("../../utils");
+const rows = getInput(true).map(row => row.split(""));
 
 const getCode = numpadLayout => {
   let code = "";

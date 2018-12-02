@@ -1,5 +1,5 @@
-const { getInput, range } = require("../utils");
-const input = getInput(11, true);
+const { getInput, range } = require("../../utils");
+const input = getInput(true);
 
 const parseInput = () => {
   const result = input.map(x => []);

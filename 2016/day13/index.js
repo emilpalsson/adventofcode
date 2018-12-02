@@ -1,6 +1,6 @@
-const { getInput, range } = require("../utils");
-const { astar } = require("../utils/astar");
-const input = parseInt(getInput(13), 10);
+const { getInput, range } = require("../../utils");
+const { astar } = require("../../utils/astar");
+const input = parseInt(getInput(), 10);
 
 const posId = ([x, y]) => `${x}x${y}`;
 

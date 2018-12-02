@@ -1,5 +1,5 @@
-var { getInput } = require("../utils");
-const ipList = getInput(7, true);
+var { getInput } = require("../../utils");
+const ipList = getInput(true);
 const hypernetRegex = /\[[a-z]+\]/g;
 
 const part1 = () => {

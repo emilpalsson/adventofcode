@@ -1,7 +1,5 @@
-var { getInput, range } = require("../utils");
-const rows = getInput(3, true).map(r =>
-  r.match(/\d+/g).map(x => parseInt(x, 10))
-);
+var { getInput, range } = require("../../utils");
+const rows = getInput(true).map(r => r.match(/\d+/g).map(x => parseInt(x, 10)));
 
 const isValidTriangle = sides =>
   sides[0] + sides[1] > sides[2] &&

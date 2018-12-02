@@ -1,5 +1,5 @@
-const { getInput, range } = require("../utils");
-const instructions = getInput(8, true).map(x => x.split(/[ =xyb]+/));
+const { getInput, range } = require("../../utils");
+const instructions = getInput(true).map(x => x.split(/[ =xyb]+/));
 
 const screen = range(6).map(i => range(50).fill(" "));
 

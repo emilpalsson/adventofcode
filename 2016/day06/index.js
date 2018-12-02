@@ -1,5 +1,5 @@
-var { getInput, range } = require("../utils");
-const input = getInput(6, true);
+var { getInput, range } = require("../../utils");
+const input = getInput(true);
 const message = range(input[0].length).map(() => []);
 input.forEach(row => {
   row.split("").forEach((char, index) => message[index].push(char));

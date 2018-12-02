@@ -1,5 +1,5 @@
-var { getInput } = require("../utils");
-const input = getInput(15, true)
+var { getInput } = require("../../utils");
+const input = getInput(true)
   .map(row => /Disc #(\d+) has (\d+).*position (\d+)/.exec(row))
   .map(arr => ({ positions: parseInt(arr[2]), position: parseInt(arr[3]) }));
 

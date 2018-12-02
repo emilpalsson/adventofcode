@@ -1,6 +1,6 @@
 var md5 = require("md5");
-var { getInput } = require("../utils");
-const salt = getInput(14);
+var { getInput } = require("../../utils");
+const salt = getInput();
 
 const day14 = enableKeyStretching => {
   const hashes = [];
