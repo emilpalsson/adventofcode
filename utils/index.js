@@ -1,7 +1,7 @@
 var fs = require("fs");
 
-const getInput = splitRows => {
-  const input = fs.readFileSync("input.txt", "utf8");
+const getInput = (splitRows, test) => {
+  const input = fs.readFileSync(test ? "testinput.txt" : "input.txt", "utf8");
   return splitRows ? input.split(/\r\n|\r|\n/) : input;
 };
 
