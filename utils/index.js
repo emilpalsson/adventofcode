@@ -9,4 +9,6 @@ const range = size => [...Array(size).keys()];
 
 const reverse = value => value.split('').reverse().join('') // prettier-ignore
 
-module.exports = { getInput, range, reverse };
+const sum = array => array.reduce((sum, item) => sum + item, 0);
+
+module.exports = { getInput, range, reverse, sum };
