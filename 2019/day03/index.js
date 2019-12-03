@@ -3,22 +3,8 @@ const input = getInput(true, false).map(wire =>
   wire.split(",").map(move => ({
     direction: move.substr(0, 1),
     length: Number(move.substr(1))
-    // x: move.startsWith('R') ? Number(move.substr(1)) : 0
   }))
 );
-
-// const getXYFromeMove = move => {
-//   switch (move.direction) {
-//     case "R":
-//       return { x: move.length, y: 0 };
-//     case "L":
-//       return { x: -move.length, y: 0 };
-//     case "D":
-//       return { x: 0, y: move.length };
-//     case "U":
-//       return { x: 0, y: -move.length };
-//   }
-// };
 
 const wire1 = input[0]; //.map(getXYFromeMove);
 const wire2 = input[1];
@@ -26,65 +12,88 @@ const pos = { x: 0, y: 0 };
 
 const id = () => `${pos.x};${pos.y}`;
 
+let minTotal = Infinity;
+
+let steps = 0;
 const map = {};
 const plotRight = (wire, length) => {
-  // console.log("begin plot right");
   for (let i = 0; i < length; i++) {
+    steps++;
     pos.x++;
     const currId = id();
     if (wire === 1) {
-      map[currId] = 1;
+      if (!map[currId]) {
+        map[currId] = steps;
+      }
     } else {
       if (map[currId]) {
-        console.log("INTERSECTION", pos, getDistance());
+        console.log("INTERSECTION", pos, getDistance(), map[currId] + steps);
+        const totalSteps = map[currId] + steps;
+        if (totalSteps < minTotal) {
+          minTotal = totalSteps;
+        }
       }
     }
-    // console.log(pos);
   }
 };
 const plotLeft = (wire, length) => {
-  // console.log("begin plot left");
   for (let i = 0; i < length; i++) {
+    steps++;
     pos.x--;
     const currId = id();
     if (wire === 1) {
-      map[currId] = 1;
+      if (!map[currId]) {
+        map[currId] = steps;
+      }
     } else {
       if (map[currId]) {
-        console.log("INTERSECTION", pos, getDistance());
+        console.log("INTERSECTION", pos, getDistance(), map[currId] + steps);
+        const totalSteps = map[currId] + steps;
+        if (totalSteps < minTotal) {
+          minTotal = totalSteps;
+        }
       }
     }
-    // console.log(pos);
   }
 };
 const plotDown = (wire, length) => {
-  // console.log("begin plot down");
   for (let i = 0; i < length; i++) {
+    steps++;
     pos.y++;
     const currId = id();
     if (wire === 1) {
-      map[currId] = 1;
+      if (!map[currId]) {
+        map[currId] = steps;
+      }
     } else {
       if (map[currId]) {
-        console.log("INTERSECTION", pos, getDistance());
+        console.log("INTERSECTION", pos, getDistance(), map[currId] + steps);
+        const totalSteps = map[currId] + steps;
+        if (totalSteps < minTotal) {
+          minTotal = totalSteps;
+        }
       }
     }
-    // console.log(pos);
   }
 };
 const plotUp = (wire, length) => {
-  // console.log("begin plot up");
   for (let i = 0; i < length; i++) {
+    steps++;
     pos.y--;
     const currId = id();
     if (wire === 1) {
-      map[currId] = 1;
+      if (!map[currId]) {
+        map[currId] = steps;
+      }
     } else {
       if (map[currId]) {
-        console.log("INTERSECTION", pos, getDistance());
+        console.log("INTERSECTION", pos, getDistance(), map[currId] + steps);
+        const totalSteps = map[currId] + steps;
+        if (totalSteps < minTotal) {
+          minTotal = totalSteps;
+        }
       }
     }
-    // console.log(pos);
   }
 };
 
@@ -95,13 +104,7 @@ const getDistance = () => {
   return distance;
 };
 
-// wire1;
-
-// let posX = 0;
-// let posY = 0;
-
 wire1.forEach(move => {
-  // console.log(move);
   switch (move.direction) {
     case "R":
       plotRight(1, move.length);
@@ -120,10 +123,9 @@ wire1.forEach(move => {
 
 pos.x = 0;
 pos.y = 0;
+steps = 0;
 
-console.log("\n\n\nWIRE 2\n\n\n");
 wire2.forEach(move => {
-  // console.log(move);
   switch (move.direction) {
     case "R":
       plotRight(2, move.length);
@@ -142,6 +144,8 @@ wire2.forEach(move => {
 
 intersections.sort();
 console.log(intersections);
+
+minTotal;
 
 // console.log(Object.keys(map));
 
