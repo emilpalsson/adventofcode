@@ -3,46 +3,60 @@ const input = getInput()
   .split(",")
   .map(Number);
 
+const PARAM_MODE = {
+  POSITION: 0,
+  IMMEDIATE: 1
+};
+
+const OPERATION = {
+  ADD: 1,
+  MULTIPLY: 2,
+  INPUT: 3,
+  OUTPUT: 4
+};
+
+const parseOperation = str => {
+  str = str.toString().padStart(5, "0");
+  return {
+    code: Number(str.substr(str.length - 2)),
+    paramModes: str
+      .substr(0, str.length - 2)
+      .split("")
+      .map(Number)
+      .reverse()
+  };
+};
+
 const run = () => {
   const state = input.slice();
-  let pos = 0;
+  let pointer = 0;
 
-  while (state[pos] !== 99) {
-    const opStr = state[pos].toString().padStart(5, "0");
+  const getParamValue = (param, paramMode) =>
+    paramMode === PARAM_MODE.IMMEDIATE ? param : state[param];
 
-    const operation = Number(opStr.substr(opStr.length - 2));
-    const positionModes = opStr
-      .substr(0, opStr.length - 2)
-      .split("")
-      .map(Number);
+  const read = () => state[pointer++];
 
-    if (operation === 1) {
-      const a = positionModes[2] === 1 ? state[pos + 1] : state[state[pos + 1]];
-      const b = positionModes[1] === 1 ? state[pos + 2] : state[state[pos + 2]];
-      const resultIndex = state[pos + 3];
+  while (state[pointer] !== 99) {
+    const operation = parseOperation(read());
 
+    if (operation.code === OPERATION.ADD) {
+      const a = getParamValue(read(), operation.paramModes[0]);
+      const b = getParamValue(read(), operation.paramModes[1]);
+      const resultIndex = getParamValue(read(), PARAM_MODE.IMMEDIATE);
       state[resultIndex] = a + b;
-
-      pos += 4;
-    } else if (operation === 2) {
-      const a = positionModes[2] === 1 ? state[pos + 1] : state[state[pos + 1]];
-      const b = positionModes[1] === 1 ? state[pos + 2] : state[state[pos + 2]];
-      const resultIndex = state[pos + 3];
-
+    } else if (operation.code === OPERATION.MULTIPLY) {
+      const a = getParamValue(read(), operation.paramModes[0]);
+      const b = getParamValue(read(), operation.paramModes[1]);
+      const resultIndex = getParamValue(read(), PARAM_MODE.IMMEDIATE);
       state[resultIndex] = a * b;
-
-      pos += 4;
-    } else if (operation === 3) {
-      const a = state[pos + 1];
+    } else if (operation.code === OPERATION.INPUT) {
+      const a = read();
       state[a] = 1;
-      pos += 2;
-    } else if (operation === 4) {
-      const a = positionModes[2] === 1 ? state[pos + 1] : state[state[pos + 1]];
+    } else if (operation.code === OPERATION.OUTPUT) {
+      const a = getParamValue(read(), operation.paramModes[0]);
       console.log(a); // 7265618
-      pos += 2;
     }
   }
-  return state[0];
 };
 
 run();
