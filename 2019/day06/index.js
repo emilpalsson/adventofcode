@@ -14,25 +14,38 @@ input.forEach(x => {
   // console.log(x[1]);
   allObj.add(x[1]);
 });
-console.log(allObj);
+// console.log(allObj);
 
-const countParents = id => {
+const getParents = id => {
   let orbitsAround = input.find(x => x[1] === id);
-  let count = 0;
+  const parents = [];
   while (orbitsAround) {
-    count++;
     id = orbitsAround[0];
+    parents.push(id);
     orbitsAround = input.find(x => x[1] === id);
   }
-  return count;
+  return parents;
 };
 
-// console.log(countParents("C"));
-// return;
+const yourParents = getParents("YOU");
+const targetParents = getParents("SAN");
+// console.log(yourParents);
+// console.log(targetParents);
+
+for (let i = 0; i < yourParents.length; i++) {
+  const isCommonParent = targetParents.includes(yourParents[i]);
+  if (isCommonParent) {
+    const targetDistance = targetParents.indexOf(yourParents[i]);
+    const youDistance = i;
+    console.log(targetDistance + youDistance);
+    break;
+  }
+}
+return;
 
 let totalCount = 0;
 allObj.forEach(id => {
-  const parents = countParents(id);
+  const parents = getParents(id);
   totalCount += parents;
   console.log(id, parents);
 });
