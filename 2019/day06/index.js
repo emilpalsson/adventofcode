@@ -1,20 +1,8 @@
 const { getInput } = require("../../utils");
 const input = getInput(true).map(x => x.split(")"));
 
-const map = input.reduce((acc, curr) => {
-  acc[curr[0]] = curr[1];
-  return acc;
-}, {});
-
-input;
-// map;
-
 const allObj = new Set();
-input.forEach(x => {
-  // console.log(x[1]);
-  allObj.add(x[1]);
-});
-// console.log(allObj);
+input.forEach(x => allObj.add(x[1]));
 
 const getParents = id => {
   let orbitsAround = input.find(x => x[1] === id);
@@ -27,29 +15,28 @@ const getParents = id => {
   return parents;
 };
 
-const yourParents = getParents("YOU");
-const targetParents = getParents("SAN");
-// console.log(yourParents);
-// console.log(targetParents);
+const part1 = () => {
+  let totalCount = 0;
+  allObj.forEach(id => {
+    const parents = getParents(id);
+    totalCount += parents.length;
+  });
+  return totalCount;
+};
 
-for (let i = 0; i < yourParents.length; i++) {
-  const isCommonParent = targetParents.includes(yourParents[i]);
-  if (isCommonParent) {
-    const targetDistance = targetParents.indexOf(yourParents[i]);
-    const youDistance = i;
-    console.log(targetDistance + youDistance);
-    break;
+const part2 = () => {
+  const yourParents = getParents("YOU");
+  const targetParents = getParents("SAN");
+
+  for (let i = 0; i < yourParents.length; i++) {
+    const isCommonParent = targetParents.includes(yourParents[i]);
+    if (isCommonParent) {
+      const targetDistance = targetParents.indexOf(yourParents[i]);
+      const youDistance = i;
+      return targetDistance + youDistance;
+    }
   }
-}
-return;
+};
 
-let totalCount = 0;
-allObj.forEach(id => {
-  const parents = getParents(id);
-  totalCount += parents;
-  console.log(id, parents);
-});
-totalCount;
-
-// console.log("#1:", run(1)); // 7265618
-// console.log("#2:", run(5)); // 7731427
+console.log("#1:", part1()); // 7265618
+console.log("#2:", part2()); // 7731427
