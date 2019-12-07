@@ -31,66 +31,73 @@ const parseOperation = str => {
   };
 };
 
-const run = inputApa => {
+const program = phase => {
   const state = input.slice();
   let pointer = 0;
-  let diagnosticCode;
-  let inputApaPointer = 0;
+  let output;
+  let phaseInitiated = false;
 
   const getParamValue = (param, paramMode) =>
     paramMode === PARAM_MODE.IMMEDIATE ? param : state[param];
 
   const read = () => state[pointer++];
 
-  while (state[pointer] !== 99) {
-    const operation = parseOperation(read());
+  const run = inputValue => {
+    while (state[pointer] !== 99) {
+      const operation = parseOperation(read());
 
-    if (operation.code === OPERATION.ADD) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[c] = a + b;
-    } else if (operation.code === OPERATION.MULTIPLY) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[c] = a * b;
-    } else if (operation.code === OPERATION.INPUT) {
-      const a = read();
-      state[a] = inputApa[inputApaPointer++];
-    } else if (operation.code === OPERATION.OUTPUT) {
-      diagnosticCode = getParamValue(read(), operation.paramModes[0]);
-    } else if (operation.code === OPERATION.JUMP_IF_TRUE) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      if (a !== 0) {
-        pointer = b;
+      if (operation.code === OPERATION.ADD) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[c] = a + b;
+      } else if (operation.code === OPERATION.MULTIPLY) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[c] = a * b;
+      } else if (operation.code === OPERATION.INPUT) {
+        const a = read();
+        state[a] = phaseInitiated ? inputValue : phase;
+        phaseInitiated = true;
+      } else if (operation.code === OPERATION.OUTPUT) {
+        output = getParamValue(read(), operation.paramModes[0]);
+        return { reason: "OUTPUT", output };
+      } else if (operation.code === OPERATION.JUMP_IF_TRUE) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        if (a !== 0) {
+          pointer = b;
+        }
+      } else if (operation.code === OPERATION.JUMP_IF_FALSE) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        if (a === 0) {
+          pointer = b;
+        }
+      } else if (operation.code === OPERATION.LESS_THAN) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[c] = a < b ? 1 : 0;
+      } else if (operation.code === OPERATION.EQUALS) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[c] = a === b ? 1 : 0;
       }
-    } else if (operation.code === OPERATION.JUMP_IF_FALSE) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      if (a === 0) {
-        pointer = b;
-      }
-    } else if (operation.code === OPERATION.LESS_THAN) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[c] = a < b ? 1 : 0;
-    } else if (operation.code === OPERATION.EQUALS) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[c] = a === b ? 1 : 0;
     }
-  }
 
-  return diagnosticCode;
+    // console.log("HALT", output);
+    // onFinish && onFinish(output);
+    return { reason: "HALT", output };
+  };
+
+  return { run };
 };
 
-const getCombinations = () => {
+const getCombinations = nums => {
   const result = [];
-  const nums = [0, 1, 2, 3, 4];
 
   const getNext = (prefix, availableNums) => {
     availableNums.forEach(num => {
@@ -106,14 +113,19 @@ const getCombinations = () => {
   getNext("", nums);
   return result;
 };
-const combinations = getCombinations();
+const combinations = getCombinations([5, 6, 7, 8, 9]);
 
 const runSequence = inputSequence => {
-  let secondParam = 0;
-  for (let i = 0; i < 5; i++) {
-    secondParam = run([inputSequence[i], secondParam]);
+  const amplifiers = inputSequence.map(phase => program(phase));
+  let lastResult = { output: 0 };
+  let currentAmp = 0;
+  while (true) {
+    lastResult = amplifiers[currentAmp].run(lastResult.output);
+    if (lastResult.reason === "HALT" && currentAmp === 4) {
+      return lastResult.output;
+    }
+    currentAmp = (currentAmp + 1) % 5;
   }
-  return secondParam;
 };
 
 let highestResult = 0;
@@ -121,7 +133,7 @@ combinations.forEach(sequence => {
   const result = runSequence(sequence.split("").map(Number));
   highestResult = Math.max(highestResult, result);
 });
-console.log(highestResult); //116680
+console.log(highestResult); //139629729
 
 // console.log("#1:", run(1));
 // console.log("#2:", run(5));
