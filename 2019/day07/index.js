@@ -88,8 +88,6 @@ const program = phase => {
       }
     }
 
-    // console.log("HALT", output);
-    // onFinish && onFinish(output);
     return { reason: "HALT", output };
   };
 
@@ -113,27 +111,43 @@ const getCombinations = nums => {
   getNext("", nums);
   return result;
 };
-const combinations = getCombinations([5, 6, 7, 8, 9]);
 
-const runSequence = inputSequence => {
-  const amplifiers = inputSequence.map(phase => program(phase));
-  let lastResult = { output: 0 };
-  let currentAmp = 0;
-  while (true) {
-    lastResult = amplifiers[currentAmp].run(lastResult.output);
-    if (lastResult.reason === "HALT" && currentAmp === 4) {
-      return lastResult.output;
-    }
-    currentAmp = (currentAmp + 1) % 5;
-  }
+const runAllCombinationsAndGetHighestResult = (runner, phases) => {
+  const combinations = getCombinations(phases);
+  let highestResult = 0;
+  combinations.forEach(sequence => {
+    const result = runner(sequence.split("").map(Number));
+    highestResult = Math.max(highestResult, result);
+  });
+  return highestResult;
 };
 
-let highestResult = 0;
-combinations.forEach(sequence => {
-  const result = runSequence(sequence.split("").map(Number));
-  highestResult = Math.max(highestResult, result);
-});
-console.log(highestResult); //139629729
+const part1 = () => {
+  const run = inputSequence => {
+    let lastOutput = 0;
+    for (let i = 0; i < 5; i++) {
+      lastOutput = program(inputSequence[i]).run(lastOutput).output;
+    }
+    return lastOutput;
+  };
+  return runAllCombinationsAndGetHighestResult(run, [0, 1, 2, 3, 4]);
+};
 
-// console.log("#1:", run(1));
-// console.log("#2:", run(5));
+const part2 = () => {
+  const run = inputSequence => {
+    const amplifiers = inputSequence.map(phase => program(phase));
+    let lastResult = { output: 0 };
+    let currentAmp = 0;
+    while (true) {
+      lastResult = amplifiers[currentAmp].run(lastResult.output);
+      if (lastResult.reason === "HALT" && currentAmp === 4) {
+        return lastResult.output;
+      }
+      currentAmp = (currentAmp + 1) % 5;
+    }
+  };
+  return runAllCombinationsAndGetHighestResult(run, [5, 6, 7, 8, 9]);
+};
+
+console.log("#1:", part1()); // 116680
+console.log("#2:", part2()); // 89603079
