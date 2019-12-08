@@ -23,8 +23,7 @@ const chop = (str, chunkSize) => {
 const layers = chop(input, layerSize);
 
 const part1 = () => {
-  const getDigitCount = (str, digit) =>
-    (str.match(new RegExp(digit, "g")) || []).length;
+  const getDigitCount = (s, d) => (s.match(new RegExp(d, "g")) || []).length;
 
   let layerWithFewest0;
   let layerWithFewest0Count = Infinity;
@@ -38,8 +37,7 @@ const part1 = () => {
 
   const oneCount = getDigitCount(layerWithFewest0, 1);
   const twoCount = getDigitCount(layerWithFewest0, 2);
-
-  console.log(oneCount * twoCount); // 2520
+  return oneCount * twoCount;
 };
 
 const part2 = () => {
@@ -61,11 +59,10 @@ const part2 = () => {
   const finalRows = chop(finalPixels.join(""), IMAGE_WIDTH);
   const image = finalRows
     .map(row => row.replace(new RegExp(COLOR.BLACK, "g"), " "))
+    .map(row => row.replace(new RegExp(COLOR.WHITE, "g"), "#"))
     .join("\n");
-  console.log(image);
+  return image;
 };
 
-part2();
-
-// console.log("#1:", part1());
-// console.log("#2:", part2());
+console.log("#1:", part1()); // 2520
+console.log("#2:\n" + part2()); // LEGJY
