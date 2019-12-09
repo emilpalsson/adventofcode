@@ -143,7 +143,7 @@ const run = systemId => {
   return diagnosticCode;
 };
 
-console.log(run(1)); // 3375309317 too low
+console.log(run(2)); // 3375309317 too low
 
 // console.log("#1:", run(1)); // 7265618
 // console.log("#2:", run(5)); // 7731427
