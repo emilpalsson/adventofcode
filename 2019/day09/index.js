@@ -33,13 +33,10 @@ const parseOperation = str => {
   };
 };
 
-// const debug = console.log;
-const debug = () => {};
-
-const run = systemId => {
+const run = inputValue => {
   const state = input.slice();
   let pointer = 0;
-  let diagnosticCode;
+  let output;
   let relativeBase = 0;
 
   const getParamValue = (param, paramMode) => {
@@ -55,95 +52,57 @@ const run = systemId => {
 
   const read = () => state[pointer++];
 
-  const relativeBaseCrap = (paramMode, value) =>
+  const getWritePosition = (paramMode, value) =>
     paramMode === PARAM_MODE.RELATIVE_BASE ? relativeBase + value : value;
 
   while (state[pointer] !== 99) {
-    // if (state[pointer] === 21108) {
-    //   console.log(21108);
-    // }
     const operation = parseOperation(read());
-    // console.log(operation);
 
     if (operation.code === OPERATION.ADD) {
       const a = getParamValue(read(), operation.paramModes[0]);
       const b = getParamValue(read(), operation.paramModes[1]);
       const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[relativeBaseCrap(operation.paramModes[2], c)] = a + b;
-      debug("ADD", a, b, c);
+      state[getWritePosition(operation.paramModes[2], c)] = a + b;
     } else if (operation.code === OPERATION.MULTIPLY) {
       const a = getParamValue(read(), operation.paramModes[0]);
       const b = getParamValue(read(), operation.paramModes[1]);
       const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      // state[c] = a * b;
-      state[relativeBaseCrap(operation.paramModes[2], c)] = a * b;
-      debug("MULTIPLY", a, b, c);
+      state[getWritePosition(operation.paramModes[2], c)] = a * b;
     } else if (operation.code === OPERATION.INPUT) {
       const a = read();
-      if (operation.paramModes[0] === PARAM_MODE.RELATIVE_BASE) {
-        state[relativeBase + a] = systemId;
-      } else {
-        state[a] = systemId;
-      }
-      // console.log("input", systemId);
-      debug("INPUT", a, systemId);
+      state[getWritePosition(operation.paramModes[0], a)] = inputValue;
     } else if (operation.code === OPERATION.OUTPUT) {
-      diagnosticCode = getParamValue(read(), operation.paramModes[0]);
-      console.log(diagnosticCode);
-      debug("OUTPUT", diagnosticCode);
+      output = getParamValue(read(), operation.paramModes[0]);
     } else if (operation.code === OPERATION.JUMP_IF_TRUE) {
       const a = getParamValue(read(), operation.paramModes[0]);
       const b = getParamValue(read(), operation.paramModes[1]);
       if (a !== 0) {
         pointer = b;
       }
-      debug("JUMP_IF_TRUE", a !== 0);
     } else if (operation.code === OPERATION.JUMP_IF_FALSE) {
       const a = getParamValue(read(), operation.paramModes[0]);
       const b = getParamValue(read(), operation.paramModes[1]);
       if (a === 0) {
         pointer = b;
       }
-      debug("JUMP_IF_FALSE", a === 0);
     } else if (operation.code === OPERATION.LESS_THAN) {
       const a = getParamValue(read(), operation.paramModes[0]);
       const b = getParamValue(read(), operation.paramModes[1]);
       const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      // state[c] = a < b ? 1 : 0;
-
-      if (operation.paramModes[2] === PARAM_MODE.RELATIVE_BASE) {
-        state[relativeBase + c] = a < b ? 1 : 0;
-      } else {
-        state[c] = a < b ? 1 : 0;
-      }
-
-      debug("LESS_THAN", a, b, c, a < b);
+      state[getWritePosition(operation.paramModes[2], c)] = a < b ? 1 : 0;
     } else if (operation.code === OPERATION.EQUALS) {
       const a = getParamValue(read(), operation.paramModes[0]);
       const b = getParamValue(read(), operation.paramModes[1]);
       const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      // state[c] = a === b ? 1 : 0;
-
-      if (operation.paramModes[2] === PARAM_MODE.RELATIVE_BASE) {
-        state[relativeBase + c] = a === b ? 1 : 0;
-      } else {
-        state[c] = a === b ? 1 : 0;
-      }
-
-      debug("EQUALS", a, b, c, a === b);
+      state[getWritePosition(operation.paramModes[2], c)] = a === b ? 1 : 0;
     } else if (operation.code === OPERATION.ADJUSTS_RELATIVE_BASE) {
       const a = getParamValue(read(), operation.paramModes[0]);
       relativeBase += a;
-      debug("ADJUSTS_RELATIVE_BASE", a);
-    } else {
-      console.log("AAAAHHHHHHHHHHHHHHHH WTF");
     }
   }
 
-  return diagnosticCode;
+  return output;
 };
 
-console.log(run(2)); // 3375309317 too low
-
-// console.log("#1:", run(1)); // 7265618
-// console.log("#2:", run(5)); // 7731427
+console.log("#1:", run(1)); // 3380552333
+console.log("#2:", run(2)); // 78831
