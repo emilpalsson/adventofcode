@@ -6,7 +6,7 @@ const getAsteroids = () => {
   input.forEach((row, y) => {
     row.forEach((col, x) => {
       if (col === "#") {
-        result.push({ x, y });
+        result.push({ x, y, id: `${x},${y}` });
       }
     });
   });
@@ -14,10 +14,8 @@ const getAsteroids = () => {
 };
 const asteroids = getAsteroids();
 
-const round = x => Math.round(x * 100) / 100;
-
 const getDistance = (a, b) =>
-  round(Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2)));
+  Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
 
 const getAngle = (a, b) => {
   let angle = Math.atan2(b.y - a.y, b.x - a.x);
@@ -28,50 +26,32 @@ const getAngle = (a, b) => {
   return angle;
 };
 
-const tryAdd = (set, item) => {
-  if (set.has(item)) {
-    return false;
-  }
-  set.add(item);
-  return true;
+const getVisibleAsteroidCount = asteroid => {
+  const angles = new Set();
+  asteroids
+    .filter(other => other.id !== asteroid.id)
+    .forEach(other => angles.add(getAngle(asteroid, other)));
+  return angles.size;
 };
 
-const getAsteroidCountInLineOfSight = asteroid => {
-  const blockedAngles = new Set();
-  const asteroidsInLineOfSight = asteroids
-    .filter(other => other !== asteroid)
-    .filter(other => tryAdd(blockedAngles, getAngle(asteroid, other)));
-  return asteroidsInLineOfSight.length;
-};
-
-const getAsteroidBestSuitedForMonitoringStation = () => {
-  const asteroidsWithLineOfSightCount = asteroids.map(asteroid => ({
-    ...asteroid,
-    count: getAsteroidCountInLineOfSight(asteroid)
-  }));
-  asteroidsWithLineOfSightCount.sort((a, b) => b.count - a.count);
-  return asteroidsWithLineOfSightCount[0];
-};
-const station = getAsteroidBestSuitedForMonitoringStation();
+const getMonitoringStationAsteroid = () =>
+  asteroids
+    .map(a => ({ ...a, visibleCount: getVisibleAsteroidCount(a) }))
+    .sort((a, b) => b.visibleCount - a.visibleCount)[0];
 
 const getAngleToOtherAsteroids = asteroid =>
   asteroids
-    .filter(other => !(other.x === asteroid.x && other.y === asteroid.y))
+    .filter(other => other.id !== asteroid.id)
     .map(other => ({
       ...other,
       angle: getAngle(asteroid, other),
       distance: getDistance(asteroid, other)
     }))
-    .sort((a, b) => {
-      if (a.angle === b.angle) {
-        return a.distance - b.distance;
-      }
-      return a.angle - b.angle;
-    });
+    .sort((a, b) =>
+      a.angle === b.angle ? a.distance - b.distance : a.angle - b.angle
+    );
 
-const otherAsteroids = getAngleToOtherAsteroids(station);
-
-const pewpew = targets => {
+const calculate200thTarget = targets => {
   let laserAngle = -1;
   let pointer = 0;
   let target;
@@ -85,8 +65,10 @@ const pewpew = targets => {
   }
   return target;
 };
-const bestBet = pewpew(otherAsteroids);
-console.log(bestBet.x * 100 + bestBet.y);
 
-console.log("#1:", station.count); // 319
-// console.log("#2:", run(2)); // 1406 too high
+const station = getMonitoringStationAsteroid();
+const otherAsteroids = getAngleToOtherAsteroids(station);
+const twohundredthTarget = calculate200thTarget(otherAsteroids);
+
+console.log("#1:", station.visibleCount); // 319
+console.log("#2:", twohundredthTarget.x * 100 + twohundredthTarget.y); // 517
