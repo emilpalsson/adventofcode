@@ -55,13 +55,13 @@ const parseOperation = str => {
   };
 };
 
-const run = () => {
+const run = (initialPanelState, startPos) => {
   const state = input.slice();
   let pointer = 0;
   let output;
   let relativeBase = 0;
-  const panels = {};
-  const robotPos = { x: 1000, y: 1000 };
+  const panels = initialPanelState;
+  const robotPos = startPos;
   let robotDirection = ROTATION.UP;
   let currentOutputMode = OUTPUT_MODE.COLOR;
   const paintedPanels = new Set();
@@ -150,8 +150,17 @@ const run = () => {
     }
   }
 
+  // console.log(panels);
+  const rows = [[], [], [], [], [], [], [], [], []];
+  Object.entries(panels).forEach(([pos, color]) => {
+    const apa = pos.split(",").map(Number);
+    rows[apa[1]][apa[0]] = color === COLOR.BLACK ? " " : "#";
+    // console.log(pos, color);
+  });
+  console.log(rows.map(r => r.join("")));
+
   return paintedPanels.size;
 };
 
-console.log("#1:", run()); // 1885
-// console.log("#2:", run());
+// console.log("#1:", run({}, { x: 100, y: 100 })); // 1885
+console.log("#2:", run({ "0,0": 1 }, { x: 0, y: 0 }));
