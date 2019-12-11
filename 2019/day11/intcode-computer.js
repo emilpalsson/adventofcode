@@ -49,51 +49,58 @@ const intcodeComputer = ({ program, onInput, onOutput }) => {
   const getWritePosition = (paramMode, value) =>
     paramMode === PARAM_MODE.RELATIVE_BASE ? relativeBase + value : value;
 
-  while (state[pointer] !== 99) {
-    const operation = parseOperation(read());
+  const run = () => {
+    while (state[pointer] !== 99) {
+      const operation = parseOperation(read());
 
-    if (operation.code === OPERATION.ADD) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[getWritePosition(operation.paramModes[2], c)] = a + b;
-    } else if (operation.code === OPERATION.MULTIPLY) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[getWritePosition(operation.paramModes[2], c)] = a * b;
-    } else if (operation.code === OPERATION.INPUT) {
-      const a = read();
-      state[getWritePosition(operation.paramModes[0], a)] = onInput();
-    } else if (operation.code === OPERATION.OUTPUT) {
-      onOutput(getParamValue(read(), operation.paramModes[0]));
-    } else if (operation.code === OPERATION.JUMP_IF_TRUE) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      if (a !== 0) {
-        pointer = b;
+      if (operation.code === OPERATION.ADD) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[getWritePosition(operation.paramModes[2], c)] = a + b;
+      } else if (operation.code === OPERATION.MULTIPLY) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[getWritePosition(operation.paramModes[2], c)] = a * b;
+      } else if (operation.code === OPERATION.INPUT) {
+        const a = read();
+        state[getWritePosition(operation.paramModes[0], a)] = onInput();
+      } else if (operation.code === OPERATION.OUTPUT) {
+        const res = onOutput(getParamValue(read(), operation.paramModes[0]));
+        if (res && res.pause) {
+          return;
+        }
+      } else if (operation.code === OPERATION.JUMP_IF_TRUE) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        if (a !== 0) {
+          pointer = b;
+        }
+      } else if (operation.code === OPERATION.JUMP_IF_FALSE) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        if (a === 0) {
+          pointer = b;
+        }
+      } else if (operation.code === OPERATION.LESS_THAN) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[getWritePosition(operation.paramModes[2], c)] = a < b ? 1 : 0;
+      } else if (operation.code === OPERATION.EQUALS) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        const b = getParamValue(read(), operation.paramModes[1]);
+        const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
+        state[getWritePosition(operation.paramModes[2], c)] = a === b ? 1 : 0;
+      } else if (operation.code === OPERATION.ADJUSTS_RELATIVE_BASE) {
+        const a = getParamValue(read(), operation.paramModes[0]);
+        relativeBase += a;
       }
-    } else if (operation.code === OPERATION.JUMP_IF_FALSE) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      if (a === 0) {
-        pointer = b;
-      }
-    } else if (operation.code === OPERATION.LESS_THAN) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[getWritePosition(operation.paramModes[2], c)] = a < b ? 1 : 0;
-    } else if (operation.code === OPERATION.EQUALS) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      const b = getParamValue(read(), operation.paramModes[1]);
-      const c = getParamValue(read(), PARAM_MODE.IMMEDIATE);
-      state[getWritePosition(operation.paramModes[2], c)] = a === b ? 1 : 0;
-    } else if (operation.code === OPERATION.ADJUSTS_RELATIVE_BASE) {
-      const a = getParamValue(read(), operation.paramModes[0]);
-      relativeBase += a;
     }
-  }
+  };
+
+  return { run };
 };
 
 module.exports = { intcodeComputer };

@@ -55,7 +55,9 @@ const emergencyHullPaintingRobot = startPanelColor => {
     }
   };
 
-  intcodeComputer({ program: input, onInput, onOutput });
+  const computer = intcodeComputer({ program: input, onInput, onOutput });
+  computer.run();
+
   return panels;
 };
 
