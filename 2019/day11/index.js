@@ -55,13 +55,13 @@ const parseOperation = str => {
   };
 };
 
-const run = (initialPanelState, startPos) => {
+const run = (initialPanelState, part) => {
   const state = input.slice();
   let pointer = 0;
   let output;
   let relativeBase = 0;
   const panels = initialPanelState;
-  const robotPos = startPos;
+  const robotPos = { x: 0, y: 0 };
   let robotDirection = ROTATION.UP;
   let currentOutputMode = OUTPUT_MODE.COLOR;
   const paintedPanels = new Set();
@@ -105,13 +105,11 @@ const run = (initialPanelState, startPos) => {
       output = getParamValue(read(), operation.paramModes[0]);
       if (currentOutputMode === OUTPUT_MODE.COLOR) {
         panels[getId()] = output;
-        // console.log("paint", output, "to", getId());
         currentOutputMode = OUTPUT_MODE.TURN;
         paintedPanels.add(getId());
       } else {
         const turnValue = output === TURN.LEFT ? 3 : 1;
         robotDirection = (robotDirection + turnValue) % 4;
-        // console.log("turn", output, "new direction:", robotDirection);
         // prettier-ignore
         switch (robotDirection) {
           case ROTATION.UP: robotPos.y--; break;
@@ -119,7 +117,6 @@ const run = (initialPanelState, startPos) => {
           case ROTATION.LEFT: robotPos.x--; break;
           case ROTATION.RIGHT: robotPos.x++; break;
         }
-        // console.log("step to", getId());
         currentOutputMode = OUTPUT_MODE.COLOR;
       }
     } else if (operation.code === OPERATION.JUMP_IF_TRUE) {
@@ -150,17 +147,21 @@ const run = (initialPanelState, startPos) => {
     }
   }
 
-  // console.log(panels);
-  const rows = [[], [], [], [], [], [], [], [], []];
-  Object.entries(panels).forEach(([pos, color]) => {
-    const apa = pos.split(",").map(Number);
-    rows[apa[1]][apa[0]] = color === COLOR.BLACK ? " " : "#";
-    // console.log(pos, color);
-  });
-  console.log(rows.map(r => r.join("")));
-
-  return paintedPanels.size;
+  if (part === 1) {
+    return paintedPanels.size;
+  } else {
+    const s = Array(50).fill(" ");
+    const rows = [];
+    for (let i = 0; i < 6; i++) {
+      rows.push(s.slice());
+    }
+    Object.entries(panels).forEach(([pos, color]) => {
+      const apa = pos.split(",").map(Number);
+      rows[apa[1]][apa[0]] = color === COLOR.BLACK ? " " : "#";
+    });
+    return rows.map(r => r.join("")).join("\n");
+  }
 };
 
-// console.log("#1:", run({}, { x: 100, y: 100 })); // 1885
-console.log("#2:", run({ "0,0": 1 }, { x: 0, y: 0 }));
+console.log("#1:", run({}, 1)); // 1885
+console.log("#2:\n" + run({ "0,0": 1 }, 2));
