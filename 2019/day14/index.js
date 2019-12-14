@@ -1,8 +1,6 @@
 const { getInput } = require("../../utils");
 const input = getInput(true).map(row => row.split(" => "));
 
-input;
-
 const rootMaterials = {};
 const recepies = {};
 input.forEach(row => {
@@ -10,8 +8,6 @@ input.forEach(row => {
   const outputParts = row[1].split(" ");
   const outputMaterial = outputParts[1];
   const outputQuantity = Number(outputParts[0]);
-
-  // ingredients;
 
   recepies[outputMaterial] = {
     quantity: outputQuantity,
@@ -31,41 +27,63 @@ input.forEach(row => {
   }
 });
 
-// recepies;
+const calc = fuelCount => {
+  const inventory = {};
+  let totalOre = 0;
 
-rootMaterials;
+  const consume = (material, quantity) => {
+    if (material === "ORE") {
+      totalOre += quantity;
+      return;
+    }
 
-const inventory = {};
-let totalOres = 0;
+    if (!inventory[material]) {
+      inventory[material] = 0;
+    }
 
-const consume = (material, quantity) => {
-  if (material === "ORE") {
-    totalOres += quantity;
-    return;
-  }
+    // Inventory has all
+    if (inventory[material] >= quantity) {
+      inventory[material] -= quantity;
+      return;
+    }
 
-  if (!inventory[material]) {
+    // First take from inventory
+    quantity -= inventory[material];
     inventory[material] = 0;
-  }
 
-  // Inventory has all
-  if (inventory[material] >= quantity) {
-    inventory[material] -= quantity;
-    return;
-  }
+    // Produce what's still needed
+    const recepie = recepies[material];
+    const satser = Math.ceil(quantity / recepie.quantity);
+    recepie.ingredients.forEach(ingredient => {
+      consume(ingredient.material, ingredient.quantity * satser);
+    });
+    inventory[material] += satser * recepie.quantity - quantity;
+  };
+  consume("FUEL", fuelCount);
 
-  // First take from inventory
-  quantity -= inventory[material];
-  inventory[material] = 0;
-
-  // Produce what's still needed
-  const recepie = recepies[material];
-  const satser = Math.ceil(quantity / recepie.quantity);
-  recepie.ingredients.forEach(ingredient => {
-    consume(ingredient.material, ingredient.quantity * satser);
-  });
-  inventory[material] += satser * recepie.quantity - quantity;
+  return totalOre;
 };
-consume("FUEL", 1);
 
-totalOres;
+const getFuelFromMaxOreCapacity = () => {
+  const MAX_FUEL = 1000000000000;
+
+  let from = 0;
+  let to = MAX_FUEL;
+
+  let answer;
+  while (!answer) {
+    const testQuantity = Math.ceil((from + to) / 2);
+    if (calc(testQuantity) > MAX_FUEL) {
+      to = testQuantity;
+    } else {
+      from = testQuantity;
+    }
+    if (from + 1 === to) {
+      answer = from;
+    }
+  }
+  return answer;
+};
+
+console.log("#1", calc(1)); // 892207
+console.log("#2", getFuelFromMaxOreCapacity()); // 1935265
