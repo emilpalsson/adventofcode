@@ -22,22 +22,14 @@ const calculateOreNeeded = fuelCount => {
   let oreNeeded = 0;
 
   const produceChemical = (chemical, quantity) => {
-    if (chemical === "ORE") {
-      oreNeeded += quantity;
-      return;
-    }
-
-    if (!cargo[chemical]) {
-      cargo[chemical] = 0;
-    }
-
-    // Cargo has all
+    // If cargo contains enough of required chemical
+    cargo[chemical] = cargo[chemical] || 0;
     if (cargo[chemical] >= quantity) {
       cargo[chemical] -= quantity;
       return;
     }
 
-    // First take from cargo
+    // First take from cargo (if any)
     quantity -= cargo[chemical];
     cargo[chemical] = 0;
 
@@ -45,7 +37,11 @@ const calculateOreNeeded = fuelCount => {
     const reaction = reactions[chemical];
     const batches = Math.ceil(quantity / reaction.quantity);
     reaction.ingredients.forEach(ingredient => {
-      produceChemical(ingredient.chemical, ingredient.quantity * batches);
+      if (ingredient.chemical === "ORE") {
+        oreNeeded += ingredient.quantity * batches;
+      } else {
+        produceChemical(ingredient.chemical, ingredient.quantity * batches);
+      }
     });
     cargo[chemical] += batches * reaction.quantity - quantity;
   };
@@ -54,21 +50,20 @@ const calculateOreNeeded = fuelCount => {
   return oreNeeded;
 };
 
-const getProducibleFuelCountFromMaxOre = () => {
-  const MAX_FUEL = 1000000000000;
-
+const getProducibleFuelCount = oreCount => {
   let rangeFrom = 0;
-  let rangeTo = MAX_FUEL;
+  let rangeTo = oreCount;
 
   let answer;
   while (!answer) {
-    const testQuantity = Math.ceil((rangeFrom + rangeTo) / 2);
-    if (calculateOreNeeded(testQuantity) > MAX_FUEL) {
-      rangeTo = testQuantity;
+    const quantity = Math.ceil((rangeFrom + rangeTo) / 2);
+    if (calculateOreNeeded(quantity) > oreCount) {
+      rangeTo = quantity;
     } else {
-      rangeFrom = testQuantity;
+      rangeFrom = quantity;
     }
-    if (rangeFrom + 1 === rangeTo) {
+
+    if (rangeTo - rangeFrom === 1) {
       answer = rangeFrom;
     }
   }
@@ -76,4 +71,4 @@ const getProducibleFuelCountFromMaxOre = () => {
 };
 
 console.log("#1", calculateOreNeeded(1)); // 892207
-console.log("#2", getProducibleFuelCountFromMaxOre()); // 1935265
+console.log("#2", getProducibleFuelCount(1000000000000)); // 1935265
