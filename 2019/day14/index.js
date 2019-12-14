@@ -1,89 +1,79 @@
 const { getInput } = require("../../utils");
 const input = getInput(true).map(row => row.split(" => "));
 
-const rootMaterials = {};
-const recepies = {};
+const reactions = {};
 input.forEach(row => {
   const ingredients = row[0].split(", ");
-  const outputParts = row[1].split(" ");
-  const outputMaterial = outputParts[1];
-  const outputQuantity = Number(outputParts[0]);
+  const outputChemical = row[1].split(" ")[1];
+  const outputQuantity = Number(row[1].split(" ")[0]);
 
-  recepies[outputMaterial] = {
+  reactions[outputChemical] = {
     quantity: outputQuantity,
     ingredients: ingredients.map(ingredient => {
-      const ingredientParts = ingredient.split(" ");
-      const material = ingredientParts[1];
-      const quantity = Number(ingredientParts[0]);
-      return { material, quantity };
+      const chemical = ingredient.split(" ")[1];
+      const quantity = Number(ingredient.split(" ")[0]);
+      return { chemical, quantity };
     })
   };
-
-  if (recepies[outputMaterial].ingredients[0].material === "ORE") {
-    rootMaterials[outputMaterial] = {
-      input: recepies[outputMaterial].ingredients[0].quantity,
-      output: outputQuantity
-    };
-  }
 });
 
-const calc = fuelCount => {
-  const inventory = {};
-  let totalOre = 0;
+const calculateOreNeeded = fuelCount => {
+  const cargo = {};
+  let oreNeeded = 0;
 
-  const consume = (material, quantity) => {
-    if (material === "ORE") {
-      totalOre += quantity;
+  const produceChemical = (chemical, quantity) => {
+    if (chemical === "ORE") {
+      oreNeeded += quantity;
       return;
     }
 
-    if (!inventory[material]) {
-      inventory[material] = 0;
+    if (!cargo[chemical]) {
+      cargo[chemical] = 0;
     }
 
-    // Inventory has all
-    if (inventory[material] >= quantity) {
-      inventory[material] -= quantity;
+    // Cargo has all
+    if (cargo[chemical] >= quantity) {
+      cargo[chemical] -= quantity;
       return;
     }
 
-    // First take from inventory
-    quantity -= inventory[material];
-    inventory[material] = 0;
+    // First take from cargo
+    quantity -= cargo[chemical];
+    cargo[chemical] = 0;
 
     // Produce what's still needed
-    const recepie = recepies[material];
-    const satser = Math.ceil(quantity / recepie.quantity);
-    recepie.ingredients.forEach(ingredient => {
-      consume(ingredient.material, ingredient.quantity * satser);
+    const reaction = reactions[chemical];
+    const batches = Math.ceil(quantity / reaction.quantity);
+    reaction.ingredients.forEach(ingredient => {
+      produceChemical(ingredient.chemical, ingredient.quantity * batches);
     });
-    inventory[material] += satser * recepie.quantity - quantity;
+    cargo[chemical] += batches * reaction.quantity - quantity;
   };
-  consume("FUEL", fuelCount);
+  produceChemical("FUEL", fuelCount);
 
-  return totalOre;
+  return oreNeeded;
 };
 
-const getFuelFromMaxOreCapacity = () => {
+const getProducibleFuelCountFromMaxOre = () => {
   const MAX_FUEL = 1000000000000;
 
-  let from = 0;
-  let to = MAX_FUEL;
+  let rangeFrom = 0;
+  let rangeTo = MAX_FUEL;
 
   let answer;
   while (!answer) {
-    const testQuantity = Math.ceil((from + to) / 2);
-    if (calc(testQuantity) > MAX_FUEL) {
-      to = testQuantity;
+    const testQuantity = Math.ceil((rangeFrom + rangeTo) / 2);
+    if (calculateOreNeeded(testQuantity) > MAX_FUEL) {
+      rangeTo = testQuantity;
     } else {
-      from = testQuantity;
+      rangeFrom = testQuantity;
     }
-    if (from + 1 === to) {
-      answer = from;
+    if (rangeFrom + 1 === rangeTo) {
+      answer = rangeFrom;
     }
   }
   return answer;
 };
 
-console.log("#1", calc(1)); // 892207
-console.log("#2", getFuelFromMaxOreCapacity()); // 1935265
+console.log("#1", calculateOreNeeded(1)); // 892207
+console.log("#2", getProducibleFuelCountFromMaxOre()); // 1935265
