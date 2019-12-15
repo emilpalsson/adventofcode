@@ -28,10 +28,12 @@ const OBJECT = {
 
 const part1 = () => {
   const map = [];
-  const startX = 20;
-  const startY = 20;
+  const startX = 21;
+  const startY = 21;
   let x = startX;
   let y = startY;
+  let stationX;
+  let stationY;
   const lastTriedMovement = { direction: DIRECTION.NORTH, x, y };
   let lastMoveDirection = DIRECTION.NORTH;
   // map[y - 1] = [];
@@ -144,7 +146,21 @@ const part1 = () => {
     console.log(mapStr);
   };
 
-  const getShortestPathLength = () => {
+  const getLongestPathLength = () => {
+    let maxLength = 0;
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < (map[y] || []).length; x++) {
+        const state = map[y][x];
+        if (state === OBJECT.FREE) {
+          const length = getShortestPathLength([stationX, stationY], [x, y]);
+          maxLength = Math.max(maxLength, length);
+        }
+      }
+    }
+    console.log(maxLength);
+  };
+
+  const getShortestPathLength = (from, to) => {
     const isWall = ([x, y]) =>
       !map[y] || !map[y][x] || map[y][x] === OBJECT.WALL;
 
@@ -156,8 +172,8 @@ const part1 = () => {
         [xy[0] - 1, xy[1]] // left
       ].filter(xy => !isWall(xy));
 
-    const result = astar([startX, startY], [x, y], getNeighbors);
-    console.log(result);
+    const result = astar(from, to, getNeighbors);
+    return result;
   };
 
   const onInput = () => {
@@ -181,9 +197,10 @@ const part1 = () => {
 
   let count = 0;
   const onOutput = output => {
-    if (count++ > 1000) {
-      return { pause: true };
-    }
+    count++;
+    // if (count++ > 1000) {
+    //   return { pause: true };
+    // }
 
     if (output === MOVEMENT_RESULT.HIT_WALL) {
       // console.log(
@@ -193,10 +210,8 @@ const part1 = () => {
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.WALL;
       // return { pause: true };
       // map;
-      return;
-    }
-
-    if (output === MOVEMENT_RESULT.MOVED) {
+      // return;
+    } else if (output === MOVEMENT_RESULT.MOVED) {
       // console.log(
       //   { ...lastTriedMovement, direction: d(lastTriedMovement.direction) },
       //   "MOVED"
@@ -206,10 +221,8 @@ const part1 = () => {
       x = lastTriedMovement.x;
       y = lastTriedMovement.y;
       lastMoveDirection = lastTriedMovement.direction;
-      return;
-    }
-
-    if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
+      // return;
+    } else if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
       // console.log(
       //   { ...lastTriedMovement, direction: d(lastTriedMovement.direction) },
       //   "MOVED_OXYGEN"
@@ -217,10 +230,22 @@ const part1 = () => {
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.OXYGEN_STATION;
       x = lastTriedMovement.x;
       y = lastTriedMovement.y;
+      stationX = x;
+      stationY = y;
       lastMoveDirection = lastTriedMovement.direction;
+      // printMap();
+      // getShortestPathLength();
+      // console.log(map);
+      // return
+      // return { pause: true };
+    }
+
+    if (count > 100 && x === startX && y === startY) {
+      console.log(
+        getShortestPathLength([startX, startY], [stationX, stationY])
+      );
+      getLongestPathLength();
       printMap();
-      getShortestPathLength();
-      console.log(map);
       return { pause: true };
     }
 
