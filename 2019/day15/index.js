@@ -69,30 +69,6 @@ const part1 = () => {
     }
   };
 
-  const printMap = () => {
-    let mapStr = "";
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < (map[y] || []).length; x++) {
-        const state = map[y][x];
-        // console.log(x, y, state);
-        if (y === startY && x === startX) {
-          mapStr += "S";
-        } else if (state === OBJECT.WALL) {
-          mapStr += "#";
-        } else if (state === OBJECT.FREE) {
-          mapStr += " ";
-        } else if (state === OBJECT.OXYGEN_STATION) {
-          mapStr += "T";
-        } else {
-          mapStr += state || "?";
-        }
-      }
-      mapStr += "\n";
-    }
-
-    console.log(mapStr);
-  };
-
   const getLongestPathLength = () => {
     let maxLength = 0;
     for (let y = 0; y < map.length; y++) {
@@ -131,7 +107,6 @@ const part1 = () => {
     if (lastTriedMovement.direction === DIRECTION.SOUTH) lastTriedMovement.y++;
     if (lastTriedMovement.direction === DIRECTION.EAST) lastTriedMovement.x++;
     if (lastTriedMovement.direction === DIRECTION.WEST) lastTriedMovement.x--;
-    // console.log("try go", lastTriedMovement);
     return lastTriedMovement.direction;
   };
 
@@ -158,7 +133,6 @@ const part1 = () => {
         getShortestPathLength([startX, startY], [stationX, stationY])
       );
       getLongestPathLength();
-      printMap();
       return { pause: true };
     }
   };
