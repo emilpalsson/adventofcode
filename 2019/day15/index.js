@@ -19,15 +19,15 @@ const MOVEMENT_RESULT = {
 };
 
 const OBJECT = {
-  DROID: 9,
   WALL: 1,
-  OXYGEN_STATION: 2,
-  FREE: 3,
-  UNKNOWN: 4
+  OXYGEN_SYSTEM: 2,
+  FREE: 3
 };
 
 const solve = () => {
-  const map = [];
+  const getId = (posX = x, posY = y) => `${posX},${posY}`;
+
+  const map = {};
   const startX = 100;
   const startY = 100;
   let x = startX;
@@ -35,8 +35,7 @@ const solve = () => {
   let stationXY;
   let lastTriedMovement = { direction: DIRECTION.NORTH, x, y };
   let lastMoveDirection = DIRECTION.NORTH;
-  map[y] = [];
-  map[y][x] = OBJECT.FREE;
+  map[getId()] = OBJECT.FREE;
 
   const getRightTurnDirection = direction => {
     // prettier-ignore
@@ -70,13 +69,10 @@ const solve = () => {
 
   const isMovePossible = direction => {
     const movement = getMovementByDirection(direction);
-    return map[movement.y][movement.x] !== OBJECT.WALL;
+    return map[getId(movement.x, movement.y)] !== OBJECT.WALL;
   };
 
   const getMovementToTry = () => {
-    map[y - 1] = map[y - 1] || [];
-    map[y + 1] = map[y + 1] || [];
-
     let direction = getRightTurnDirection(lastMoveDirection);
     while (!isMovePossible(direction)) {
       direction = getLeftTurnDirection(direction);
@@ -86,9 +82,9 @@ const solve = () => {
 
   const getLongestPathFromStationLength = () => {
     let maxLength = 0;
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < (map[y] || []).length; x++) {
-        if (map[y][x] === OBJECT.FREE) {
+    for (let y = 0; y < startY * 2; y++) {
+      for (let x = 0; x < startX * 2; x++) {
+        if (map[getId(x, y)] === OBJECT.FREE) {
           const pathLength = getShortestPathLength(stationXY, [x, y]);
           maxLength = Math.max(maxLength, pathLength);
         }
@@ -98,7 +94,7 @@ const solve = () => {
   };
 
   const getShortestPathLength = (from, to) => {
-    const isWall = ([x, y]) => map[y][x] === OBJECT.WALL;
+    const isWall = ([x, y]) => map[getId(x, y)] === OBJECT.WALL;
     const getNeighbors = ([x, y]) =>
       [
         [x, y - 1], // up
@@ -115,16 +111,18 @@ const solve = () => {
   };
 
   const onOutput = output => {
+    const positionId = getId(lastTriedMovement.x, lastTriedMovement.y);
+
     if (output === MOVEMENT_RESULT.HIT_WALL) {
-      map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.WALL;
+      map[positionId] = OBJECT.WALL;
     } else {
-      map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.FREE;
+      map[positionId] = OBJECT.FREE;
       x = lastTriedMovement.x;
       y = lastTriedMovement.y;
       lastMoveDirection = lastTriedMovement.direction;
 
       if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
-        map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.OXYGEN_STATION;
+        map[positionId] = OBJECT.OXYGEN_SYSTEM;
         stationXY = [x, y];
       }
 
@@ -144,5 +142,6 @@ const solve = () => {
 };
 
 const answer = solve();
+console.log(new Date());
 console.log("#1:", answer.part1); // 258
 console.log("#2:", answer.part2); // 372
