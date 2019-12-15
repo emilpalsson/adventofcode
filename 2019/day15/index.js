@@ -26,120 +26,123 @@ const OBJECT = {
   UNKNOWN: 4
 };
 
-const part1 = () => {
+const solve = () => {
   const map = [];
-  const startX = 21;
-  const startY = 21;
+  const startX = 100;
+  const startY = 100;
   let x = startX;
   let y = startY;
-  let stationX;
-  let stationY;
-  let moved = false;
-  const lastTriedMovement = { direction: DIRECTION.NORTH, x, y };
+  let stationXY;
+  let lastTriedMovement = { direction: DIRECTION.NORTH, x, y };
   let lastMoveDirection = DIRECTION.NORTH;
   map[y] = [];
   map[y][x] = OBJECT.FREE;
 
-  const getDirectionToTry = () => {
-    map[y - 1] = map[y - 1] || [];
-    map[y + 1] = map[y + 1] || [];
-    if (lastMoveDirection === DIRECTION.NORTH) {
-      if (map[y][x + 1] !== OBJECT.WALL) return DIRECTION.EAST;
-      if (map[y - 1][x] !== OBJECT.WALL) return DIRECTION.NORTH;
-      if (map[y][x - 1] !== OBJECT.WALL) return DIRECTION.WEST;
-      return DIRECTION.SOUTH;
-    }
-    if (lastMoveDirection === DIRECTION.EAST) {
-      if (map[y + 1][x] !== OBJECT.WALL) return DIRECTION.SOUTH;
-      if (map[y][x + 1] !== OBJECT.WALL) return DIRECTION.EAST;
-      if (map[y - 1][x] !== OBJECT.WALL) return DIRECTION.NORTH;
-      return DIRECTION.WEST;
-    }
-    if (lastMoveDirection === DIRECTION.SOUTH) {
-      if (map[y][x - 1] !== OBJECT.WALL) return DIRECTION.WEST;
-      if (map[y + 1][x] !== OBJECT.WALL) return DIRECTION.SOUTH;
-      if (map[y][x + 1] !== OBJECT.WALL) return DIRECTION.EAST;
-      return DIRECTION.NORTH;
-    }
-    if (lastMoveDirection === DIRECTION.WEST) {
-      if (map[y - 1][x] !== OBJECT.WALL) return DIRECTION.NORTH;
-      if (map[y][x - 1] !== OBJECT.WALL) return DIRECTION.WEST;
-      if (map[y + 1][x] !== OBJECT.WALL) return DIRECTION.SOUTH;
-      return DIRECTION.EAST;
+  const getRightTurnDirection = direction => {
+    // prettier-ignore
+    switch (direction) {
+      case DIRECTION.NORTH: return DIRECTION.EAST;
+      case DIRECTION.EAST: return DIRECTION.SOUTH;
+      case DIRECTION.SOUTH: return DIRECTION.WEST;
+      case DIRECTION.WEST: return DIRECTION.NORTH;
     }
   };
 
-  const getLongestPathLength = () => {
+  const getLeftTurnDirection = direction => {
+    // prettier-ignore
+    switch (direction) {
+      case DIRECTION.NORTH: return DIRECTION.WEST;
+      case DIRECTION.WEST: return DIRECTION.SOUTH;
+      case DIRECTION.SOUTH: return DIRECTION.EAST;
+      case DIRECTION.EAST: return DIRECTION.NORTH;
+    }
+  };
+
+  const getMovementByDirection = direction => {
+    // prettier-ignore
+    switch (direction) {
+      case DIRECTION.NORTH: return { x, y: y - 1, direction }
+      case DIRECTION.EAST: return { x: x + 1, y, direction }
+      case DIRECTION.SOUTH: return {x, y: y + 1, direction}
+      case DIRECTION.WEST: return {x: x - 1, y, direction }
+    }
+  };
+
+  const isMovePossible = direction => {
+    const movement = getMovementByDirection(direction);
+    return map[movement.y][movement.x] !== OBJECT.WALL;
+  };
+
+  const getMovementToTry = () => {
+    map[y - 1] = map[y - 1] || [];
+    map[y + 1] = map[y + 1] || [];
+
+    let direction = getRightTurnDirection(lastMoveDirection);
+    while (!isMovePossible(direction)) {
+      direction = getLeftTurnDirection(direction);
+    }
+    return getMovementByDirection(direction);
+  };
+
+  const getLongestPathFromStationLength = () => {
     let maxLength = 0;
     for (let y = 0; y < map.length; y++) {
       for (let x = 0; x < (map[y] || []).length; x++) {
-        const state = map[y][x];
-        if (state === OBJECT.FREE) {
-          const length = getShortestPathLength([stationX, stationY], [x, y]);
-          maxLength = Math.max(maxLength, length);
+        if (map[y][x] === OBJECT.FREE) {
+          const pathLength = getShortestPathLength(stationXY, [x, y]);
+          maxLength = Math.max(maxLength, pathLength);
         }
       }
     }
-    console.log(maxLength);
+    return maxLength;
   };
 
   const getShortestPathLength = (from, to) => {
-    const isWall = ([x, y]) =>
-      !map[y] || !map[y][x] || map[y][x] === OBJECT.WALL;
-
-    const getNeighbors = xy =>
+    const isWall = ([x, y]) => map[y][x] === OBJECT.WALL;
+    const getNeighbors = ([x, y]) =>
       [
-        [xy[0], xy[1] - 1], // up
-        [xy[0] + 1, xy[1]], // right
-        [xy[0], xy[1] + 1], // down
-        [xy[0] - 1, xy[1]] // left
+        [x, y - 1], // up
+        [x + 1, y], // right
+        [x, y + 1], // down
+        [x - 1, y] // left
       ].filter(xy => !isWall(xy));
-
-    const result = astar(from, to, getNeighbors);
-    return result;
+    return astar(from, to, getNeighbors);
   };
 
   const onInput = () => {
-    lastTriedMovement.direction = getDirectionToTry();
-    lastTriedMovement.x = x;
-    lastTriedMovement.y = y;
-    if (lastTriedMovement.direction === DIRECTION.NORTH) lastTriedMovement.y--;
-    if (lastTriedMovement.direction === DIRECTION.SOUTH) lastTriedMovement.y++;
-    if (lastTriedMovement.direction === DIRECTION.EAST) lastTriedMovement.x++;
-    if (lastTriedMovement.direction === DIRECTION.WEST) lastTriedMovement.x--;
+    lastTriedMovement = getMovementToTry();
     return lastTriedMovement.direction;
   };
 
   const onOutput = output => {
     if (output === MOVEMENT_RESULT.HIT_WALL) {
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.WALL;
-    } else if (output === MOVEMENT_RESULT.MOVED) {
+    } else {
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.FREE;
-      moved = true;
       x = lastTriedMovement.x;
       y = lastTriedMovement.y;
       lastMoveDirection = lastTriedMovement.direction;
-    } else if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
-      map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.OXYGEN_STATION;
-      x = lastTriedMovement.x;
-      y = lastTriedMovement.y;
-      stationX = x;
-      stationY = y;
-      lastMoveDirection = lastTriedMovement.direction;
-    }
 
-    if (moved && x === startX && y === startY) {
-      console.log(
-        getShortestPathLength([startX, startY], [stationX, stationY])
-      );
-      getLongestPathLength();
-      return { pause: true };
+      if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
+        map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.OXYGEN_STATION;
+        stationXY = [x, y];
+      }
+
+      if (x === startX && y === startY) {
+        return { pause: true };
+      }
     }
   };
 
   const computer = intcodeComputer({ program: input, onInput, onOutput });
   computer.run();
+
+  return {
+    part1: getShortestPathLength([startX, startY], stationXY),
+    part2: getLongestPathFromStationLength()
+  };
 };
 
-console.log("#1:", part1()); // 270
-// console.log("#2:", part2()); // 12535
+const answer = solve();
+console.log("#1:", answer.part1); // 258
+console.log("#2:", answer.part2); // 372
