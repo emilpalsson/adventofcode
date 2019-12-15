@@ -12,30 +12,26 @@ const DIRECTION = {
   EAST: 4
 };
 
-const MOVEMENT_RESULT = {
+const MOVE_RESULT = {
   HIT_WALL: 0,
   MOVED: 1,
-  MOVED_OXYGEN: 2
+  MOVED_TO_OXYGEN_SYSTEM: 2
 };
 
-const OBJECT = {
+const MAPSTATE = {
   WALL: 1,
-  OXYGEN_SYSTEM: 2,
-  FREE: 3
+  HALLWAY: 2
 };
 
 const solve = () => {
-  const getId = (posX = x, posY = y) => `${posX},${posY}`;
+  const getId = (x = position.x, y = position.y) => `${x},${y}`;
 
   const map = {};
-  const startX = 100;
-  const startY = 100;
-  let x = startX;
-  let y = startY;
-  let stationXY;
-  let lastTriedMovement = { direction: DIRECTION.NORTH, x, y };
-  let lastMoveDirection = DIRECTION.NORTH;
-  map[getId()] = OBJECT.FREE;
+  const startXY = [100, 100];
+  let targetXY;
+  let position = { direction: DIRECTION.NORTH, x: startXY[0], y: startXY[1] };
+  let lastTriedMove = { ...position };
+  map[getId()] = MAPSTATE.HALLWAY;
 
   const getRightTurnDirection = direction => {
     // prettier-ignore
@@ -57,35 +53,35 @@ const solve = () => {
     }
   };
 
-  const getMovementByDirection = direction => {
+  const getMoveByDirection = direction => {
     // prettier-ignore
     switch (direction) {
-      case DIRECTION.NORTH: return { x, y: y - 1, direction }
-      case DIRECTION.EAST: return { x: x + 1, y, direction }
-      case DIRECTION.SOUTH: return {x, y: y + 1, direction}
-      case DIRECTION.WEST: return {x: x - 1, y, direction }
+      case DIRECTION.NORTH: return { x: position.x, y: position.y - 1, direction }
+      case DIRECTION.EAST: return { x: position.x + 1, y: position.y, direction }
+      case DIRECTION.SOUTH: return { x: position.x, y: position.y + 1, direction }
+      case DIRECTION.WEST: return { x: position.x - 1, y: position.y, direction }
     }
   };
 
   const isMovePossible = direction => {
-    const movement = getMovementByDirection(direction);
-    return map[getId(movement.x, movement.y)] !== OBJECT.WALL;
+    const move = getMoveByDirection(direction);
+    return map[getId(move.x, move.y)] !== MAPSTATE.WALL;
   };
 
-  const getMovementToTry = () => {
-    let direction = getRightTurnDirection(lastMoveDirection);
+  const getMoveToTry = () => {
+    let direction = getRightTurnDirection(position.direction);
     while (!isMovePossible(direction)) {
       direction = getLeftTurnDirection(direction);
     }
-    return getMovementByDirection(direction);
+    return getMoveByDirection(direction);
   };
 
   const getLongestPathFromStationLength = () => {
     let maxLength = 0;
-    for (let y = 0; y < startY * 2; y++) {
-      for (let x = 0; x < startX * 2; x++) {
-        if (map[getId(x, y)] === OBJECT.FREE) {
-          const pathLength = getShortestPathLength(stationXY, [x, y]);
+    for (let y = 0; y < startXY[1] * 2; y++) {
+      for (let x = 0; x < startXY[0] * 2; x++) {
+        if (map[getId(x, y)] === MAPSTATE.HALLWAY) {
+          const pathLength = getShortestPathLength(targetXY, [x, y]);
           maxLength = Math.max(maxLength, pathLength);
         }
       }
@@ -93,8 +89,8 @@ const solve = () => {
     return maxLength;
   };
 
-  const getShortestPathLength = (from, to) => {
-    const isWall = ([x, y]) => map[getId(x, y)] === OBJECT.WALL;
+  const getShortestPathLength = (fromXY, toXY) => {
+    const isWall = ([x, y]) => map[getId(x, y)] === MAPSTATE.WALL;
     const getNeighbors = ([x, y]) =>
       [
         [x, y - 1], // up
@@ -102,31 +98,26 @@ const solve = () => {
         [x, y + 1], // down
         [x - 1, y] // left
       ].filter(xy => !isWall(xy));
-    return astar(from, to, getNeighbors);
+    return astar(fromXY, toXY, getNeighbors);
   };
 
   const onInput = () => {
-    lastTriedMovement = getMovementToTry();
-    return lastTriedMovement.direction;
+    lastTriedMove = getMoveToTry();
+    return lastTriedMove.direction;
   };
 
   const onOutput = output => {
-    const positionId = getId(lastTriedMovement.x, lastTriedMovement.y);
-
-    if (output === MOVEMENT_RESULT.HIT_WALL) {
-      map[positionId] = OBJECT.WALL;
+    if (output === MOVE_RESULT.HIT_WALL) {
+      map[getId(lastTriedMove.x, lastTriedMove.y)] = MAPSTATE.WALL;
     } else {
-      map[positionId] = OBJECT.FREE;
-      x = lastTriedMovement.x;
-      y = lastTriedMovement.y;
-      lastMoveDirection = lastTriedMovement.direction;
+      map[getId(lastTriedMove.x, lastTriedMove.y)] = MAPSTATE.HALLWAY;
+      position = { ...lastTriedMove };
 
-      if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
-        map[positionId] = OBJECT.OXYGEN_SYSTEM;
-        stationXY = [x, y];
+      if (output === MOVE_RESULT.MOVED_TO_OXYGEN_SYSTEM) {
+        targetXY = [position.x, position.y];
       }
 
-      if (x === startX && y === startY) {
+      if (position.x === startXY[0] && position.y === startXY[0]) {
         return { pause: true };
       }
     }
@@ -136,12 +127,11 @@ const solve = () => {
   computer.run();
 
   return {
-    part1: getShortestPathLength([startX, startY], stationXY),
+    part1: getShortestPathLength(startXY, targetXY),
     part2: getLongestPathFromStationLength()
   };
 };
 
 const answer = solve();
-console.log(new Date());
 console.log("#1:", answer.part1); // 258
 console.log("#2:", answer.part2); // 372
