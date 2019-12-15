@@ -34,34 +34,15 @@ const part1 = () => {
   let y = startY;
   let stationX;
   let stationY;
+  let moved = false;
   const lastTriedMovement = { direction: DIRECTION.NORTH, x, y };
   let lastMoveDirection = DIRECTION.NORTH;
-  // map[y - 1] = [];
   map[y] = [];
-  // map[y + 1] = [];
   map[y][x] = OBJECT.FREE;
-  // let currentDirection = DIRECTION.NORTH;
-  // map[y][x + 1] = OBJECT.UNKNOWN;
-  // map[y][x - 1] = OBJECT.UNKNOWN;
-  // map[y + 1][x] = OBJECT.UNKNOWN;
-  // map[y - 1][x] = OBJECT.UNKNOWN;
 
-  // let lastMovementCommand;
-  // const lastMovementTo = { x, y };
-
-  // const getId = () => `${x},${y}`;
-
-  // const addPosToMap = (x, y) => {
-  //   if (!map[y]) {
-  //     map[y] = [];
-  //   }
-  // };
   const getDirectionToTry = () => {
     map[y - 1] = map[y - 1] || [];
     map[y + 1] = map[y + 1] || [];
-    // addPosToMap(y + 1);
-    // addPosToMap(y - 1);
-    // console.log(d(lastMoveDirection));
     if (lastMoveDirection === DIRECTION.NORTH) {
       if (map[y][x + 1] !== OBJECT.WALL) return DIRECTION.EAST;
       if (map[y - 1][x] !== OBJECT.WALL) return DIRECTION.NORTH;
@@ -86,27 +67,6 @@ const part1 = () => {
       if (map[y + 1][x] !== OBJECT.WALL) return DIRECTION.SOUTH;
       return DIRECTION.EAST;
     }
-
-    // if (!map[y][x + 1]) {
-    //   lastMovementTo.x++;
-    //   lastMovementCommand = DIRECTION.EAST;
-    //   return DIRECTION.EAST;
-    // }
-    // if (!map[y][x - 1]) {
-    //   lastMovementTo.x--;
-    //   lastMovementCommand = DIRECTION.WEST;
-    //   return DIRECTION.WEST;
-    // }
-    // if (!map[y + 1][x]) {
-    //   lastMovementTo.y++;
-    //   lastMovementCommand = DIRECTION.SOUTH;
-    //   return DIRECTION.SOUTH;
-    // }
-    // if (!map[y - 1][x]) {
-    //   lastMovementTo.y--;
-    //   lastMovementCommand = DIRECTION.NORTH;
-    //   return DIRECTION.NORTH;
-    // }
   };
 
   const printMap = () => {
@@ -130,19 +90,6 @@ const part1 = () => {
       mapStr += "\n";
     }
 
-    // map.forEach((row, y) => {
-    //   row.forEach((cell, x) => {
-    //     // console.log(y, x, cell);
-    //     if (y === startY && x === startX) {
-    //       mapStr += "S";
-    //     } else if (cell === OBJECT.FREE) {
-    //       mapStr = "#";
-    //     } else if (cell === OBJECT.OXYGEN_STATION) {
-    //       mapStr = "T";
-    //     }
-    //   });
-    //   mapStr += "\n";
-    // });
     console.log(mapStr);
   };
 
@@ -188,59 +135,25 @@ const part1 = () => {
     return lastTriedMovement.direction;
   };
 
-  const d = direction => {
-    if (direction === DIRECTION.NORTH) return "NORTH";
-    if (direction === DIRECTION.EAST) return "EAST";
-    if (direction === DIRECTION.SOUTH) return "SOUTH";
-    if (direction === DIRECTION.WEST) return "WEST";
-  };
-
-  let count = 0;
   const onOutput = output => {
-    count++;
-    // if (count++ > 1000) {
-    //   return { pause: true };
-    // }
-
     if (output === MOVEMENT_RESULT.HIT_WALL) {
-      // console.log(
-      //   { ...lastTriedMovement, direction: d(lastTriedMovement.direction) },
-      //   "HIT_WALL"
-      // );
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.WALL;
-      // return { pause: true };
-      // map;
-      // return;
     } else if (output === MOVEMENT_RESULT.MOVED) {
-      // console.log(
-      //   { ...lastTriedMovement, direction: d(lastTriedMovement.direction) },
-      //   "MOVED"
-      // );
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.FREE;
-      // forcedMovement = getGoBackCommand();
+      moved = true;
       x = lastTriedMovement.x;
       y = lastTriedMovement.y;
       lastMoveDirection = lastTriedMovement.direction;
-      // return;
     } else if (output === MOVEMENT_RESULT.MOVED_OXYGEN) {
-      // console.log(
-      //   { ...lastTriedMovement, direction: d(lastTriedMovement.direction) },
-      //   "MOVED_OXYGEN"
-      // );
       map[lastTriedMovement.y][lastTriedMovement.x] = OBJECT.OXYGEN_STATION;
       x = lastTriedMovement.x;
       y = lastTriedMovement.y;
       stationX = x;
       stationY = y;
       lastMoveDirection = lastTriedMovement.direction;
-      // printMap();
-      // getShortestPathLength();
-      // console.log(map);
-      // return
-      // return { pause: true };
     }
 
-    if (count > 100 && x === startX && y === startY) {
+    if (moved && x === startX && y === startY) {
       console.log(
         getShortestPathLength([startX, startY], [stationX, stationY])
       );
@@ -248,28 +161,6 @@ const part1 = () => {
       printMap();
       return { pause: true };
     }
-
-    // map;
-
-    // console.log(lastTriedMovement, output);
-
-    // if (currentOutputMode === OUTPUT_MODE.X_POS) {
-    //   x = output;
-    // } else if (currentOutputMode === OUTPUT_MODE.Y_POS) {
-    //   y = output;
-    // } else {
-    //   if (x === -1 && y === 0) {
-    //     points = output;
-    //   } else {
-    //     map[getId()] = output;
-    //     if (output === TILE_TYPE.BALL) {
-    //       ballX = x;
-    //     } else if (output === TILE_TYPE.PADDLE) {
-    //       paddleX = x;
-    //     }
-    //   }
-    // }
-    // currentOutputMode = (currentOutputMode + 1) % 3;
   };
 
   const computer = intcodeComputer({ program: input, onInput, onOutput });
