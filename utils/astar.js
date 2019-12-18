@@ -16,7 +16,7 @@ const NodeModel = (
   closed: false
 });
 
-const astar = (start, goal, getNeighbors) => {
+const astar = (start, goal, getNeighbors, detailedResponse) => {
   const nodes = {};
   nodes[getId(start)] = NodeModel(start, 0, getHeuristicDistance(start, goal));
   const openSet = [getId(start)];
@@ -38,8 +38,22 @@ const astar = (start, goal, getNeighbors) => {
   while (setNextCurrent()) {
     // Solution found?
     if (current.id === goalId) {
-      return current.costSoFar;
-      break;
+      if (detailedResponse) {
+        // Trace back
+        const pathTaken = [];
+        const startNode = nodes[getId(start)];
+        let stepNode = nodes[current.id];
+        while (stepNode !== startNode) {
+          pathTaken.push(stepNode.cords.slice());
+          stepNode = nodes[stepNode.cameFrom];
+        }
+        // pathTaken.push(startNode.cords.slice());
+        pathTaken.reverse();
+
+        return { distance: current.costSoFar, path: pathTaken };
+      } else {
+        return current.costSoFar;
+      }
     }
 
     // Remove current node from openSet and set to closed
