@@ -10,18 +10,15 @@ const checkPosition = (x, y) =>
 
     const onInput = () => {
       if (requiredAxis === 0) {
-        // console.log("input x", x);
         requiredAxis = "y";
         return x;
       }
-      // console.log("input y", y);
       requiredAxis = "x";
       return y;
     };
 
     const onOutput = output => {
-      console.log(x, "x", y, "=", output);
-      resolve(output);
+      resolve(output === 1);
     };
 
     const computer = intcodeComputer({ program: input, onInput, onOutput });
@@ -29,21 +26,37 @@ const checkPosition = (x, y) =>
   });
 
 const solve = async () => {
-  const map = {};
-  const position = { x: 0, y: 0 };
-  let requiredAxis = 0;
-  const getId = (x = position.x, y = position.y) => `${x},${y}`;
-
-  let sum = 0;
-
-  for (let y = 0; y < 50; y++) {
-    for (let x = 0; x < 50; x++) {
-      const apa = await checkPosition(x, y);
-      sum += apa;
+  let found;
+  let y = 0;
+  let lastX = 0;
+  while (!found) {
+    let beamFound = false;
+    for (let x = lastX; x < 1000000000; x++) {
+      const tl = await checkPosition(x, y);
+      if (tl) {
+        if (!beamFound) {
+          beamFound = true;
+          lastX = x;
+        }
+        const tr = await checkPosition(x + 99, y);
+        const bl = await checkPosition(x, y + 99);
+        const br = await checkPosition(x + 99, y + 99);
+        if (tr && bl && br) {
+          found = { x, y };
+          break;
+        }
+      } else if (beamFound) {
+        break;
+      }
     }
-  }
 
-  sum;
+    // if (y % 100 === 0) {
+    //   console.log(y);
+    // }
+
+    y++;
+  }
+  console.log(found.x * 10000 + found.y);
 };
 
 const answer = solve();
