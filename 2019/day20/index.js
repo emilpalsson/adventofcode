@@ -16,17 +16,20 @@ const getNeighbors = ([x, y]) => {
     .map(xy => {
       const teleporterExit = teleporterMap[getId(xy[0], xy[1])];
       if (teleporterExit) {
-        return getXy(teleporterExit);
+        return { xy: getXy(teleporterExit.pos), level: teleporterExit.level };
       }
-      return xy;
+      return { xy, level: 0 };
     })
-    .filter(xy => isPathway(xy))
-    .map(xy => getId(xy[0], xy[1]));
+    .filter(neighbor => isPathway(neighbor.xy))
+    .map(neighbor => ({
+      posId: getId(neighbor.xy[0], neighbor.xy[1]),
+      level: neighbor.level
+    }));
 };
 
 let shortestPath = Infinity;
 const traverse = state => {
-  if (state.position === goal) {
+  if (state.level === 0 && state.position === goal) {
     shortestPath = state.steps;
     return;
   }
@@ -36,14 +39,22 @@ const traverse = state => {
   }
 
   const neighbors = getNeighbors(getXy(state.position)).filter(
-    neighbor => (state.hasSeen[neighbor] || Infinity) > state.steps + 1
+    neighbor =>
+      (state.hasSeen[`${neighbor.posId},${state.level + neighbor.level}`] ||
+        Infinity) >
+      state.steps + 1
   );
   neighbors.forEach(neighbor => {
     const nextState = {
-      position: neighbor,
+      position: neighbor.posId,
       steps: state.steps + 1,
-      hasSeen: { ...state.hasSeen, [neighbor]: state.steps + 1 }
+      hasSeen: {
+        ...state.hasSeen,
+        [`${neighbor.posId},${state.level + neighbor.level}`]: state.steps + 1
+      },
+      level: state.level + neighbor.level
     };
+    if (nextState.level < 0 || nextState.level > 100) return;
     traverse(nextState);
   });
 };
@@ -51,7 +62,8 @@ const traverse = state => {
 traverse({
   position: start,
   steps: 0,
-  hasSeen: { [start]: 0 }
+  hasSeen: { [start]: 0 },
+  level: 0
 });
 
 console.log(shortestPath);

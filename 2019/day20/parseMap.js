@@ -19,7 +19,8 @@ const getParsedInput = () => {
         teleporters.push({
           id: teleporterId,
           entrance: getId(x, y - 1),
-          exit: getId(x, y)
+          exit: getId(x, y),
+          level: minX > 0 ? 1 : -1
         });
       }
     });
@@ -34,7 +35,8 @@ const getParsedInput = () => {
         teleporters.push({
           id: teleporterId,
           entrance: getId(x, y + 1),
-          exit: getId(x, y)
+          exit: getId(x, y),
+          level: minX > 0 ? 1 : -1
         });
       }
     });
@@ -50,7 +52,8 @@ const getParsedInput = () => {
         teleporters.push({
           id: teleporterId,
           entrance: getId(x - 1, y),
-          exit: getId(x, y)
+          exit: getId(x, y),
+          level: minY > 0 ? 1 : -1
         });
       }
     });
@@ -65,7 +68,8 @@ const getParsedInput = () => {
         teleporters.push({
           id: teleporterId,
           entrance: getId(x + 1, y),
-          exit: getId(x, y)
+          exit: getId(x, y),
+          level: minY > 0 ? 1 : -1
         });
       }
     });
@@ -102,8 +106,10 @@ const getParsedInput = () => {
       (other, otherIndex) => otherIndex != index && other.id === teleporter.id
     );
     if (exit) {
-      // teleporter;
-      teleporterMap[teleporter.entrance] = exit.exit;
+      teleporterMap[teleporter.entrance] = {
+        pos: exit.exit,
+        level: teleporter.level
+      };
     } else {
       if (teleporter.id === "AA") {
         start = teleporter.exit;
