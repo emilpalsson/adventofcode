@@ -130,13 +130,6 @@ const getParsedInput = () => {
     });
   });
 
-  // pathway;
-  // start;
-  // goal;
-
-  // console.log(teleporters);
-  // console.log(teleporterMap);
-
   return {
     pathway,
     start,
