@@ -10,10 +10,15 @@ const OUTPUT_STATE = {
   Y: 2
 };
 
+let firstYSentToNAT;
+
+const natPackage = { x: 0, y: 0 };
+
 const computers = [];
 
 const computer = networkAddress => {
   let outputState = OUTPUT_STATE.ADDRESS;
+  let idling = 0;
   const package = {
     address: null,
     x: null,
@@ -31,20 +36,30 @@ const computer = networkAddress => {
       outputState = OUTPUT_STATE.Y;
     } else if (outputState === OUTPUT_STATE.Y) {
       package.y = output;
-      console.log(
-        `${networkAddress} sends (${package.x}, ${package.y}) to ${package.address}`
-      );
-      computers[package.address].send(package.x);
-      computers[package.address].send(package.y);
+      if (package.address === 255) {
+        if (!firstYSentToNAT) {
+          firstYSentToNAT = package.y;
+          console.log("First Y sent to nat:", firstYSentToNAT);
+        }
+        natPackage.x = package.x;
+        natPackage.y = package.y;
+      } else {
+        computers[package.address].send(package.x);
+        computers[package.address].send(package.y);
+      }
       outputState = OUTPUT_STATE.ADDRESS;
     }
   };
 
   const onInput = () => {
-    if (receivingQueue.length === 0) return -1;
+    if (receivingQueue.length === 0) {
+      idling++;
+      return -1;
+    }
+    idling = 0;
 
     const received = receivingQueue.shift();
-    console.log(networkAddress, "recieved", received);
+    // console.log(networkAddress, "recieved", received);
     return received;
   };
 
@@ -56,16 +71,38 @@ const computer = networkAddress => {
 
   return {
     send,
-    step: ic.step
+    isIdling: () => idling > 1,
+    step: ic.step,
+    reset: () => (idling = 0)
   };
 };
 
 range(50).forEach(i => computers.push(computer(i)));
+// computers.forEach(computer => {
+//   console.log(computer.isIdling());
+// });
 
+const natYValues = new Set();
 while (true) {
   computers.forEach(computer => {
     computer.step();
+    // console.log(computer.isIdling());
   });
+
+  const networkBusy = computers.some(c => !c.isIdling());
+  if (!networkBusy) {
+    console.log("network idling, sending", natPackage.x, natPackage.y);
+    computers[0].send(natPackage.x);
+    computers[0].send(natPackage.y);
+    computers[0].reset();
+    if (natYValues.has(natPackage.y)) {
+      console.log("First repeating nat Y:", natPackage.y);
+      break;
+    }
+    natYValues.add(natPackage.y);
+    // break;
+  }
+  // console.log();
 }
 
 // console.log("#1:", answer.part1); // 258
