@@ -1,0 +1,71 @@
+                                                         Kitchen
+                                                         |
+                     Passages - Warp Drive Maintenance - Sick Bay
+                                |
+                                Gift Wrapping Center - Engineering
+                                |                      |
+                                |            Holodeck  |
+                                |            |         |
+                                |            Storage - Hallway
+                                |                      |
+                                |                      Navigation
+                                |
+                                Observatory - Crew Quarters - Hot Chocolate Fountain
+                                |             |
+                      Stables - Hull Breach   Corridor - Science Lab
+                      |
+Security Checkpoint - Arcade
+
+north
+take dark matter
+north
+north
+take manifold
+west
+take jam
+east
+east
+take candy cane
+west
+south
+east
+south
+take antenna
+west
+take hypercube
+east
+north
+west
+south
+east
+east
+take bowl of rice
+west
+south
+take dehydrated water
+north
+west
+south
+west
+south
+west
+
+Items in your inventory:
+- jam
+- bowl of rice
+- antenna
+- manifold
+- hypercube
+- dehydrated water
+- candy cane
+- dark matter
+
+
+
+
+Dont take:
+molten lava
+giant electromagnet
+photons
+infinite loop
+escape pod
