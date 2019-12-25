@@ -1,35 +1,31 @@
 const { getInput } = require("../../utils");
 const input = getInput(true);
 
-const CARD_COUNT = 10007;
-let position = 2019;
+// const dealIntoNewStack = (currentPos, cardCount) => cardCount - currentPos - 1;
+// const dealWithIncrement = (currentPos, cardCount, x) => x * currentPos;
+// const cut = (currentPos, cardCount, x) => currentPos - x;
 
-const dealIntoNewStack = () => {
-  position = CARD_COUNT - position - 1;
-};
+// const dealIntoNewStack = () => (currentPos, cardCount) => cardCount - currentPos - 1;
+// const dealWithIncrement = increment => (currentPos) => increment * currentPos;
+// const cut = num => (currentPos) => currentPos - num;
 
-const dealWithIncrement = increment => {
-  position = increment * position;
-};
-
-const cut = num => {
-  position = position - num;
-};
-
-input.forEach(step => {
+const steps = input.map(step => {
   if (step === "deal into new stack") {
-    dealIntoNewStack();
+    return (currentPos, cardCount) => cardCount - currentPos - 1;
   } else if (step.startsWith("deal with")) {
-    const increment = Number(step.substr(20));
-    dealWithIncrement(increment);
-  } else if (step.startsWith("cut ")) {
-    const num = Number(step.substr(4));
-    cut(num);
+    return currentPos => Number(step.substr(20)) * currentPos;
   }
-  position = position % CARD_COUNT;
+  return currentPos => currentPos - Number(step.substr(4));
 });
 
-console.log(position); // 4775
+const part1 = () => {
+  const CARD_COUNT = 10007;
+  let position = 2019;
+  steps.forEach(step => {
+    position = step(position, CARD_COUNT) % CARD_COUNT;
+  });
+  return position;
+};
 
-// console.log("#1:", part1()); // 32526865
-// console.log("#2:", part2()); // 2009
+console.log("#1:", part1()); // 4775
+// console.log("#2:", part2());
