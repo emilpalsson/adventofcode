@@ -1,12 +1,8 @@
 const { getInput } = require("../../utils");
 const input = getInput(true);
 
-const seatCodeToSeatId = (seatCode) => {
-  const binaryStr = seatCode.replace(/[FL]/g, "0").replace(/[BR]/g, "1");
-  const row = parseInt(binaryStr.substr(0, 7), 2);
-  const col = parseInt(binaryStr.substr(7), 2);
-  return row * 8 + col;
-};
+const seatCodeToSeatId = (seatCode) =>
+  parseInt(seatCode.replace(/[FL]/g, "0").replace(/[BR]/g, "1"), 2);
 
 const main = () => {
   const seatIds = input.map(seatCodeToSeatId).sort((a, b) => a - b);
