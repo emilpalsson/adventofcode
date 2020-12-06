@@ -1,18 +1,29 @@
 const { getInput } = require("../../utils");
-const input = getInput()
+const input = getInput(false, false)
   .replace(/\r/g, "")
   .split("\n\n")
   .map((group) => {
-    return [...new Set(group.replace(/\n/g, "").split(""))].length;
+    return group.split("\n");
   });
 
-const part1 = () => {
-  return input.reduce((sum, x) => sum + x, 0);
+const countQuestionsWhereEveryoneAnsweredYes = (yesPerPerson) => {
+  let answeredYes = [...yesPerPerson[0]];
+
+  for (let i = yesPerPerson.length - 1; i > 0; i--) {
+    answeredYes.forEach((question) => {
+      if (!yesPerPerson[i].includes(question)) {
+        answeredYes = answeredYes.filter((x) => x !== question);
+      }
+    });
+  }
+
+  return answeredYes.length;
 };
 
 const part2 = () => {
-  return 0;
+  const apa = input.map(countQuestionsWhereEveryoneAnsweredYes);
+  return apa.reduce((sum, x) => sum + x, 0);
 };
 
-console.log("#1:", part1()); // 6703
-// console.log("#2:", part2());
+// console.log("#1:", part1()); // 6703
+console.log("#2:", part2()); // 3430
