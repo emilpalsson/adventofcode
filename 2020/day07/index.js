@@ -9,7 +9,7 @@ getInput(true, false).map((x) => {
       bagsSpec[lineSplit[0]] = bagsSpec[lineSplit[0]] || [];
       bagsSpec[lineSplit[0]].push({
         bag: `${style} ${color}`,
-        amount,
+        amount: parseInt(amount, 10),
       });
     }
   });
@@ -41,8 +41,17 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  return 0;
+  let count = 0;
+  const traverse = (color, multiplier = 1) => {
+    const childBags = bagsSpec[color] || [];
+    childBags.forEach((childBag) => {
+      count += childBag.amount * multiplier;
+      traverse(childBag.bag, multiplier * childBag.amount);
+    });
+  };
+  traverse("shiny gold");
+  return count;
 };
 
 console.log("#1:", part1()); // 213
-// console.log("#2:", part2());
+console.log("#2:", part2()); // 38426
