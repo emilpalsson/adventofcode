@@ -1,38 +1,29 @@
 const { getInput } = require("../../utils");
 const input = getInput().split(",").map(Number);
 
-const part1 = () => {
+const run = (rounds) => {
   const history = new Map();
 
-  const sayNumber = (myIndex, number) => {
-    history.set(number, myIndex);
-    // console.log(myIndex + 1, number);
-  };
-
-  input.slice(0, input.length - 1).forEach((number, turn) => {
-    sayNumber(turn, number);
-  });
+  for (let i = 0; i < input.length - 1; i++) {
+    history.set(input[i], i);
+  }
   let nextNumber = input[input.length - 1];
 
-  const getAgeOfNextNumber = (currentIndex) => {
-    if (history.has(nextNumber)) {
-      return currentIndex - history.get(nextNumber);
+  const getAge = (number, currentIndex) => {
+    if (history.has(number)) {
+      return currentIndex - history.get(number);
     }
     return 0;
   };
 
-  for (let i = input.length - 1; i < 30000000 - 1; i++) {
-    const numberToSay = nextNumber;
-    nextNumber = getAgeOfNextNumber(i);
-    sayNumber(i, numberToSay);
+  for (let i = input.length - 1; i < rounds - 1; i++) {
+    const currentNumber = nextNumber;
+    nextNumber = getAge(nextNumber, i);
+    history.set(currentNumber, i);
   }
 
   return nextNumber;
 };
 
-const part2 = () => {
-  return 0;
-};
-
-console.log("#1:", part1()); // 866
-// console.log("#2:", part2()); //
+console.log("#1:", run(2020)); // 866
+console.log("#2:", run(30000000)); // 1437692
