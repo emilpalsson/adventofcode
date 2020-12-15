@@ -21,7 +21,7 @@ const part1 = () => {
     return 0;
   };
 
-  for (let i = input.length - 1; i < 2019; i++) {
+  for (let i = input.length - 1; i < 30000000 - 1; i++) {
     const numberToSay = nextNumber;
     nextNumber = getAgeOfNextNumber(i);
     sayNumber(i, numberToSay);
