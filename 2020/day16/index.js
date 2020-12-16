@@ -1,5 +1,5 @@
 const { getInput } = require("../../utils");
-const input = getInput(false, false).replace(/\r/g, "");
+const input = getInput().replace(/\r/g, "");
 
 const parseInput = () => {
   const [rulesSection, yourTicket, nearbyTicketsSection] = input.split("\n\n");
@@ -26,7 +26,7 @@ const parseInput = () => {
 
 const isInRange = (value, range) => value >= range[0] && value <= range[1];
 
-const part1 = () => {
+const main = () => {
   const { rules, nearbyTickets } = parseInput();
 
   const getInvalidValues = (ticket) => {
@@ -44,14 +44,16 @@ const part1 = () => {
 
   const invalidValues = [];
   nearbyTickets.forEach((ticket) => {
-    invalidValues.push(...getInvalidValues(ticket));
+    const invalid = getInvalidValues(ticket);
+    invalidValues.push(...invalid);
   });
-  return invalidValues.reduce((sum, current) => sum + current);
+
+  return {
+    ticketScanningErrorRate: invalidValues.reduce((sum, current) => sum + current),
+  };
 };
 
-const part2 = () => {
-  return 0;
-};
+const answer = main();
 
-console.log("#1:", part1()); // 18142
+console.log("#1:", answer.ticketScanningErrorRate); // 18142
 // console.log("#2:", part2()); //
