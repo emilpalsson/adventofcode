@@ -16,26 +16,21 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  const lineLength = input[0].length;
+  const calculateRating = (useMostCommonBit) => {
+    let lines = input;
 
-  let filteredLines = input;
-  for (let i = 0; i < lineLength; i++) {
-    const threshold = filteredLines.length / 2;
-    const mostCommonBit =
-      filteredLines.map((l) => l[i]).filter((b) => b === "1").length >= threshold ? "1" : "0";
-    filteredLines = filteredLines.filter((l) => l[i] === mostCommonBit);
-  }
-  const oxygenGeneratorRating = parseInt(parseInt(filteredLines[0], 10), 2);
+    for (let i = 0; lines.length > 1; i++) {
+      const threshold = lines.length / 2;
+      const mostCommonBit =
+        lines.map((l) => l[i]).filter((b) => b === "1").length >= threshold ? "1" : "0";
+      lines = lines.filter((l) => (l[i] === mostCommonBit) === useMostCommonBit);
+    }
 
-  filteredLines = input;
-  for (let i = 0; i < lineLength; i++) {
-    const threshold = filteredLines.length / 2;
-    const mostCommonBit =
-      filteredLines.map((l) => l[i]).filter((b) => b === "1").length >= threshold ? "1" : "0";
-    filteredLines = filteredLines.filter((l) => l[i] !== mostCommonBit);
-    if (filteredLines.length === 1) break;
-  }
-  const co2ScrubberRating = parseInt(parseInt(filteredLines[0], 10), 2);
+    return parseInt(parseInt(lines[0], 10), 2);
+  };
+
+  const oxygenGeneratorRating = calculateRating(true);
+  const co2ScrubberRating = calculateRating(false);
 
   return oxygenGeneratorRating * co2ScrubberRating;
 };
