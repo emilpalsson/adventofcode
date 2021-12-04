@@ -59,7 +59,6 @@ const part1 = () => {
       });
 
       if (hasBingo(board)) {
-        winner = board;
         return countUnmarked(board) * number;
       }
     }
@@ -67,8 +66,30 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  return 0;
+  const { numbers, boards } = parseInput();
+
+  let numberIndex = 0;
+  while (true) {
+    const number = numbers[numberIndex];
+    numberIndex++;
+
+    for (let bi = 0; bi < boards.length; bi++) {
+      const board = boards[bi];
+      if (board.hasBingo) continue;
+
+      board.rows.forEach((row) => {
+        row.filter((box) => box.n === number).forEach((box) => (box.x = 1));
+      });
+
+      if (hasBingo(board)) {
+        board.hasBingo = true;
+        if (boards.every((b) => b.hasBingo)) {
+          return countUnmarked(board) * number;
+        }
+      }
+    }
+  }
 };
 
-console.log("#1:", part1()); // 252
-// console.log("#2:", part2()); // 2608962048
+// console.log("#1:", part1()); // 50008
+console.log("#2:", part2()); // 17408
