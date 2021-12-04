@@ -15,7 +15,7 @@ const parseInput = () => {
           .trim()
           .split(/\s+/)
           .map(Number)
-          .map((n) => ({ n }))
+          .map((number) => ({ number }))
       );
     }
     inputCopy.shift();
@@ -36,60 +36,50 @@ const parseInput = () => {
   return { numbers, boards };
 };
 
-const hasBingo = (board) => board.scoreLines.some((l) => l.every((b) => b.x));
+const hasBingo = (board) => board.scoreLines.some((line) => line.every((box) => box.marked));
 
 const countUnmarked = (board) =>
   board.rows.reduce((sum, row) => {
-    row.filter((b) => !b.x).forEach((b) => (sum += b.n));
+    row.filter((b) => !b.marked).forEach((b) => (sum += b.number));
     return sum;
   }, 0);
 
-const part1 = () => {
-  const { numbers, boards } = parseInput();
-
-  let numberIndex = 0;
+const runUntilNextBingo = (boards, numbers) => {
   while (true) {
-    const number = numbers[numberIndex];
-    numberIndex++;
+    for (let i = 0; i < boards.length; i++) {
+      const board = boards[i];
 
-    for (let bi = 0; bi < boards.length; bi++) {
-      const board = boards[bi];
       board.rows.forEach((row) => {
-        row.filter((box) => box.n === number).forEach((box) => (box.x = 1));
+        row.filter((box) => box.number === numbers[0]).forEach((box) => (box.marked = true));
       });
 
       if (hasBingo(board)) {
-        return countUnmarked(board) * number;
+        return { winner: board, winnerIndex: i, number: numbers[0] };
       }
     }
+
+    numbers.shift();
   }
+};
+
+const part1 = () => {
+  const { numbers, boards } = parseInput();
+  const { winner, number } = runUntilNextBingo(boards, numbers);
+  return countUnmarked(winner) * number;
 };
 
 const part2 = () => {
   const { numbers, boards } = parseInput();
 
-  let numberIndex = 0;
   while (true) {
-    const number = numbers[numberIndex];
-    numberIndex++;
-
-    for (let bi = 0; bi < boards.length; bi++) {
-      const board = boards[bi];
-      if (board.hasBingo) continue;
-
-      board.rows.forEach((row) => {
-        row.filter((box) => box.n === number).forEach((box) => (box.x = 1));
-      });
-
-      if (hasBingo(board)) {
-        board.hasBingo = true;
-        if (boards.every((b) => b.hasBingo)) {
-          return countUnmarked(board) * number;
-        }
-      }
+    const { winner, winnerIndex, number } = runUntilNextBingo(boards, numbers);
+    if (boards.length === 1) {
+      return countUnmarked(winner) * number;
+    } else {
+      boards.splice(winnerIndex, 1);
     }
   }
 };
 
-// console.log("#1:", part1()); // 50008
+console.log("#1:", part1()); // 50008
 console.log("#2:", part2()); // 17408
