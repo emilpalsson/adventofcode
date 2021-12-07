@@ -31,8 +31,15 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  return 0;
+  const state = {};
+  input.forEach((line) => {
+    getPointsAlongLine(line).forEach((point) => {
+      if (!state[point]) state[point] = 0;
+      state[point]++;
+    });
+  });
+  return Object.values(state).filter((val) => val > 1).length;
 };
 
 console.log("#1:", part1()); // 5280
-// console.log("#2:", part2());
+console.log("#2:", part2()); // 16716
