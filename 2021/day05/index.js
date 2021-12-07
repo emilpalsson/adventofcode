@@ -19,26 +19,22 @@ const getPointsAlongLine = (line) => {
   return points;
 };
 
-const part1 = () => {
-  const state = {};
-  input.filter(isHorizontalOrVertical).forEach((line) => {
+const countIntersections = (lines) => {
+  const pointCounter = new Map();
+  lines.forEach((line) => {
     getPointsAlongLine(line).forEach((point) => {
-      if (!state[point]) state[point] = 0;
-      state[point]++;
+      pointCounter[point] = (pointCounter[point] || 0) + 1;
     });
   });
-  return Object.values(state).filter((val) => val > 1).length;
+  return Object.values(pointCounter).filter((val) => val > 1).length;
+};
+
+const part1 = () => {
+  return countIntersections(input.filter(isHorizontalOrVertical));
 };
 
 const part2 = () => {
-  const state = {};
-  input.forEach((line) => {
-    getPointsAlongLine(line).forEach((point) => {
-      if (!state[point]) state[point] = 0;
-      state[point]++;
-    });
-  });
-  return Object.values(state).filter((val) => val > 1).length;
+  return countIntersections(input);
 };
 
 console.log("#1:", part1()); // 5280
