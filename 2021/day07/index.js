@@ -1,44 +1,35 @@
 const { getInput } = require("../../utils");
-const input = getInput(false).split(",").map(Number);
+const input = getInput().split(",").map(Number);
 
-const part1 = () => {
-  const calculateFuelRequirement = (moveToPosition) => {
-    return input.reduce((sum, crabPosition) => {
-      return sum + Math.abs(moveToPosition - crabPosition);
-    }, 0);
-  };
+const constantRateFuelCalculator = (steps) => steps;
+const quadraticRateFuelCalculator = (steps) => (Math.pow(steps, 2) + steps) / 2;
 
+const calculateFuelForAlignmentTo = (position, fuelRateCalculator) => {
+  return input.reduce((sum, crabPosition) => {
+    const steps = Math.abs(position - crabPosition);
+    return sum + fuelRateCalculator(steps);
+  }, 0);
+};
+
+const calculateCheapestAlignmentPosition = (fuelRateCalculator) => {
   const minPos = Math.min(...input);
   const maxPos = Math.max(...input);
 
-  let minFuelRequirement = Infinity;
+  let minFuel = Infinity;
   for (let i = minPos; i <= maxPos; i++) {
-    minFuelRequirement = Math.min(minFuelRequirement, calculateFuelRequirement(i));
+    minFuel = Math.min(minFuel, calculateFuelForAlignmentTo(i, fuelRateCalculator));
   }
 
-  return minFuelRequirement;
+  return minFuel;
+};
+
+const part1 = () => {
+  return calculateCheapestAlignmentPosition(constantRateFuelCalculator);
 };
 
 const part2 = () => {
-  const calculateSingleMoveFuel = (steps) => (Math.pow(steps, 2) + steps) / 2;
-
-  const calculateFuelRequirement = (moveToPosition) => {
-    return input.reduce((sum, crabPosition) => {
-      const steps = Math.abs(moveToPosition - crabPosition);
-      return sum + calculateSingleMoveFuel(steps);
-    }, 0);
-  };
-
-  const minPos = Math.min(...input);
-  const maxPos = Math.max(...input);
-
-  let minFuelRequirement = Infinity;
-  for (let i = minPos; i <= maxPos; i++) {
-    minFuelRequirement = Math.min(minFuelRequirement, calculateFuelRequirement(i));
-  }
-
-  return minFuelRequirement;
+  return calculateCheapestAlignmentPosition(quadraticRateFuelCalculator);
 };
 
-// console.log("#1:", part1()); // 359648
-console.log("#2:", part2()); // 0
+console.log("#1:", part1()); // 359648
+console.log("#2:", part2()); // 100727924
