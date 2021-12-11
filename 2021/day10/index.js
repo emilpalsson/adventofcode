@@ -1,5 +1,5 @@
 const { getInput } = require("../../utils");
-const input = getInput(true, false).map((line) => line.split(""));
+const input = getInput(true).map((line) => line.split(""));
 
 const isOpener = (char) => ["(", "[", "{", "<"].includes(char);
 
@@ -10,11 +10,18 @@ const closerToOpenerMap = {
   ">": "<",
 };
 
-const closerToScoreMap = {
+const closerToSyntaxScoreMap = {
   ")": 3,
   "]": 57,
   "}": 1197,
   ">": 25137,
+};
+
+const openerToAutocompleteScoreMap = {
+  "(": 1,
+  "[": 2,
+  "{": 3,
+  "<": 4,
 };
 
 const part1 = () => {
@@ -26,7 +33,7 @@ const part1 = () => {
       } else {
         const lastOpener = openers.pop();
         if (lastOpener !== closerToOpenerMap[char]) {
-          return closerToScoreMap[char];
+          return closerToSyntaxScoreMap[char];
         }
       }
     }
@@ -37,8 +44,31 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  return 0;
+  const getAutocompleteScore = (line) => {
+    const openers = [];
+    for (char of line) {
+      if (isOpener(char)) {
+        openers.push(char);
+      } else {
+        const lastOpener = openers.pop();
+        if (lastOpener !== closerToOpenerMap[char]) {
+          return null;
+        }
+      }
+    }
+    return openers
+      .map((opener) => openerToAutocompleteScoreMap[opener])
+      .reverse()
+      .reduce((sum, curr) => sum * 5 + curr, 0);
+  };
+
+  const autoCompleteScores = input
+    .map(getAutocompleteScore)
+    .filter(Boolean)
+    .sort((a, b) => a - b);
+
+  return autoCompleteScores[Math.floor(autoCompleteScores.length / 2)];
 };
 
 console.log("#1:", part1()); // 345441
-// console.log("#2:", part2()); // 0
+console.log("#2:", part2()); // 3235371166
