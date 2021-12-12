@@ -11,8 +11,8 @@ const getNeighbors = ({ x, y }) =>
     input[y - 1]?.[x - 1],
     input[y - 1]?.[x],
     input[y - 1]?.[x + 1],
-    input[y]?.[x - 1],
-    input[y]?.[x + 1],
+    input[y][x - 1],
+    input[y][x + 1],
     input[y + 1]?.[x - 1],
     input[y + 1]?.[x],
     input[y + 1]?.[x + 1],
@@ -32,9 +32,6 @@ const flash = (octopus) => {
     }
   });
 };
-
-const print = () =>
-  console.log(input.map((row) => row.map((octopus) => octopus.energy).join("")).join("\n"));
 
 const tick = () => {
   tickFlashCount = 0;
@@ -66,20 +63,11 @@ for (let i = 0; i < 10000; i++) {
   tick();
 
   if (i === 99) {
-    console.log("Part 1:", flashCount);
+    console.log("#1:", flashCount);
   }
 
   if (tickFlashCount === 100) {
-    console.log("Part 2:", i + 1);
+    console.log("#2:", i + 1);
     break;
   }
 }
-
-const part1 = () => {};
-
-const part2 = () => {
-  return 0;
-};
-
-console.log("#1:", part1()); // 0
-// console.log("#2:", part2()); // 0
