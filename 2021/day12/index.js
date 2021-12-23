@@ -1,67 +1,50 @@
 const { getInput } = require("../../utils");
-const input = getInput(true).map((line) => line.split("-"));
-
-const buildMap = () => {
-  return input.reduce((result, curr) => {
-    result[curr[0]] = result[curr[0]] || [];
-    result[curr[0]].push(curr[1]);
-
-    result[curr[1]] = result[curr[1]] || [];
-    result[curr[1]].push(curr[0]);
+const input = getInput(true)
+  .map((line) => line.split("-"))
+  .reduce((result, [cave1, cave2]) => {
+    result[cave1] = result[cave1] || [];
+    result[cave1].push(cave2);
+    result[cave2] = result[cave2] || [];
+    result[cave2].push(cave1);
     return result;
   }, {});
-};
-const map = buildMap();
 
-const part1 = () => {
-  let pathCount = 0;
+const isSmallCave = (caveId) => caveId === caveId.toLowerCase();
 
-  const move = (caveId, path = [], noRevisitCaves = []) => {
-    if (caveId === "end") {
-      pathCount++;
-      return;
-    }
+const hasRevisitedSmallCave = (path) =>
+  path.some((x) => isSmallCave(x) && path.filter((y) => y === x).length > 1);
 
-    if (caveId === caveId.toLowerCase()) {
-      noRevisitCaves = [...noRevisitCaves, caveId];
-    }
-
-    map[caveId]
-      .filter((nextCaveId) => !noRevisitCaves.includes(nextCaveId))
-      .forEach((nextCaveId) => {
-        move(nextCaveId, [...path, caveId], noRevisitCaves);
-      });
-  };
-  move("start");
-
-  return pathCount;
-};
-
-const part2 = () => {
+const solve = (illegalMoveFn) => {
   let pathCount = 0;
 
   const move = (caveId, path = []) => {
     if (caveId === "start" && path.length > 0) return;
 
-    if (
-      caveId === caveId.toLowerCase() &&
-      path.includes(caveId) &&
-      path.some((x) => x === x.toLowerCase() && path.filter((y) => y === x).length > 1)
-    )
-      return;
+    if (illegalMoveFn(caveId, path)) return;
 
     if (caveId === "end") {
       pathCount++;
       return;
     }
 
-    map[caveId].forEach((nextCaveId) => {
+    input[caveId].forEach((nextCaveId) => {
       move(nextCaveId, [...path, caveId]);
     });
   };
   move("start");
 
   return pathCount;
+};
+
+const part1 = () => {
+  const illegalMoveFn = (caveId, path) => isSmallCave(caveId) && path.includes(caveId);
+  return solve(illegalMoveFn);
+};
+
+const part2 = () => {
+  const illegalMoveFn = (caveId, path) =>
+    isSmallCave(caveId) && path.includes(caveId) && hasRevisitedSmallCave(path);
+  return solve(illegalMoveFn);
 };
 
 console.log("#1:", part1()); // 4011
