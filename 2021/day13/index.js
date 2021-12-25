@@ -30,7 +30,7 @@ const print = (points) => {
   for (let y = 0; y <= maxY; y++) {
     apa[y] = [];
     for (let x = 0; x <= maxX; x++) {
-      apa[y][x] = hasDot(points, x, y) ? "#" : ".";
+      apa[y][x] = hasDot(points, x, y) ? "#" : " ";
     }
   }
 
@@ -50,8 +50,11 @@ const part1 = () => {
 };
 
 const part2 = () => {
+  folds.forEach((x) => fold(initialPoints, x.direction, x.position));
+  print(initialPoints);
+
   return 0;
 };
 
-console.log("#1:", part1()); // 618
-// console.log("#2:", part2()); // 0
+// console.log("#1:", part1()); // 618
+console.log("#2:", part2()); // ALREKFKU
