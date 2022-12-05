@@ -44,7 +44,17 @@ const part1 = () => {
   return stacks.map((stack) => stack.shift()).join("");
 };
 
-const part2 = () => {};
+const part2 = () => {
+  const stacks = parseInitialStackState();
+  const steps = parseSteps();
 
-console.log("#1:", part1()); // VGBBJCRMN
-// console.log("#2:", part2());
+  steps.forEach((step) => {
+    const topContainers = stacks[step.from].splice(0, step.amountToMove);
+    stacks[step.to].unshift(...topContainers);
+  });
+
+  return stacks.map((stack) => stack.shift()).join("");
+};
+
+// console.log("#1:", part1()); // VGBBJCRMN
+console.log("#2:", part2()); // LBBVJBRMH
