@@ -1,35 +1,24 @@
 const { getInput } = require("../../utils");
 const input = getInput();
 
-const part1 = () => {
-  let index = 4;
-  while (index < input.length) {
-    const sequence = input.slice(index - 4, index);
-
-    if (new Set(sequence.split("")).size === 4) {
+const run = (sequenceLength) => {
+  let index = sequenceLength - 1;
+  while (index++ < input.length) {
+    const sequence = input.slice(index - sequenceLength, index);
+    if (new Set(sequence.split("")).size === sequenceLength) {
       break;
     }
-
-    index++;
   }
-
   return index;
+};
+
+const part1 = () => {
+  return run(4);
 };
 
 const part2 = () => {
-  let index = 14;
-  while (index < input.length) {
-    const sequence = input.slice(index - 14, index);
-
-    if (new Set(sequence.split("")).size === 14) {
-      break;
-    }
-
-    index++;
-  }
-
-  return index;
+  return run(14);
 };
 
 console.log("#1:", part1()); // 1175
-console.log("#2:", part2());
+console.log("#2:", part2()); // 3217
