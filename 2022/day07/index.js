@@ -1,6 +1,9 @@
 const { getInput, sum } = require("../../utils");
 const input = getInput(true);
 
+const diskSpace = 70000000;
+const spaceRequired = 30000000;
+
 const parseChangeDirectoryCommand = (command, state) => {
   const directory = command.substring(5);
   if (directory === "..") {
@@ -62,11 +65,17 @@ const calculateTotalDirectorySizes = (content) => {
 
 const getSmallDirectories = (content) => {
   return Object.values(content).filter(
-    (directory) => directory.type === "directory" && directory.size < 100000
+    (directory) => directory.type === "directory" && directory.size <= 100000
   );
 };
 
-const part1 = () => {
+const getLargeDirectories = (content, minimumSize) => {
+  return Object.values(content).filter(
+    (directory) => directory.type === "directory" && directory.size >= minimumSize
+  );
+};
+
+const run = () => {
   const state = {
     pointer: 0,
     path: [],
@@ -91,10 +100,14 @@ const part1 = () => {
   calculateTotalDirectorySizes(state.content);
 
   const smallDirectories = getSmallDirectories(state.content);
-  return sum(smallDirectories.map((x) => x.size));
+  console.log("#1:", sum(smallDirectories.map((x) => x.size))); // 1491614
+
+  const freeSpace = diskSpace - state.content["/"].size;
+  const spaceMissing = spaceRequired - freeSpace;
+
+  const dirOptions = getLargeDirectories(state.content, spaceMissing);
+  dirOptions.sort((a, b) => a.size - b.size);
+  console.log("#2:", dirOptions[0].size); // 6400111
 };
 
-const part2 = () => {};
-
-console.log("#1:", part1()); // 1491614
-// console.log("#2:", part2());
+run();
