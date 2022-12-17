@@ -6,45 +6,9 @@ const input = getInput(true).map((x) => {
 
 const posId = ({ x, y }) => `${x};${y}`;
 
-const part1 = () => {
-  const headPos = { x: 0, y: 0 };
-  const tailPos = { x: 0, y: 0 };
-  const tailVisits = new Set([posId(tailPos)]);
-
-  const moveTailVertically = (step) => {
-    tailPos.y += step;
-    tailPos.x = headPos.x;
-  };
-  const moveTailHorizontally = (step) => {
-    tailPos.x += step;
-    tailPos.y = headPos.y;
-  };
-
-  input.forEach((operation) => {
-    for (let i = 0; i < operation.steps; i++) {
-      // prettier-ignore
-      switch (operation.direction) {
-        case 'U': headPos.y++; break;
-        case 'R': headPos.x++; break;
-        case 'D': headPos.y--; break;
-        case 'L': headPos.x--; break;
-        default: throw new Error("wtf direction", direction);
-      }
-
-      if (tailPos.x < headPos.x - 1) moveTailHorizontally(1);
-      if (tailPos.x > headPos.x + 1) moveTailHorizontally(-1);
-      if (tailPos.y < headPos.y - 1) moveTailVertically(1);
-      if (tailPos.y > headPos.y + 1) moveTailVertically(-1);
-      tailVisits.add(posId(tailPos));
-    }
-  });
-
-  return tailVisits.size;
-};
-
-const part2 = () => {
+const run = (ropeLength) => {
   const knots = [];
-  for (let i = 0; i < 10; i++) knots.push({ x: 0, y: 0 });
+  for (let i = 0; i < ropeLength; i++) knots.push({ x: 0, y: 0 });
   const head = knots[0];
   const tail = knots.at(-1);
   const tailVisits = new Set([posId(tail)]);
@@ -86,5 +50,5 @@ const part2 = () => {
   return tailVisits.size;
 };
 
-console.log("#1:", part1()); // 6391
-console.log("#2:", part2()); // 2593
+console.log("#1:", run(2)); // 6391
+console.log("#2:", run(10)); // 2593
