@@ -1,4 +1,4 @@
-const { getInput } = require("../../utils");
+const { getInput, multiply } = require("../../utils");
 const input = getInput(true).map((x) => x.split("").map(Number));
 
 const getTreeLineUp = (treeX, treeY) => {
@@ -41,6 +41,26 @@ const isVisible = (height, x, y) => {
   return false;
 };
 
+const countVisibleTrees = (line, maxHeight) => {
+  let visibleTreeCount = 0;
+  for (tree of line) {
+    visibleTreeCount++;
+    if (tree >= maxHeight) break;
+  }
+  return visibleTreeCount;
+};
+
+const getScenicScore = (height, x, y) => {
+  let visibleTreeCountPerDirection = [];
+
+  visibleTreeCountPerDirection.push(countVisibleTrees(getTreeLineUp(x, y), height));
+  visibleTreeCountPerDirection.push(countVisibleTrees(getTreeLineRight(x, y), height));
+  visibleTreeCountPerDirection.push(countVisibleTrees(getTreeLineDown(x, y), height));
+  visibleTreeCountPerDirection.push(countVisibleTrees(getTreeLineLeft(x, y), height));
+
+  return multiply(visibleTreeCountPerDirection);
+};
+
 const part1 = () => {
   let visibleTreeCount = 0;
 
@@ -55,7 +75,20 @@ const part1 = () => {
   return visibleTreeCount;
 };
 
-const part2 = () => {};
+const part2 = () => {
+  let highestScenicScore = 0;
+
+  input.forEach((line, y) => {
+    line.forEach((tree, x) => {
+      const scenicScore = getScenicScore(tree, x, y);
+      if (scenicScore > highestScenicScore) {
+        highestScenicScore = scenicScore;
+      }
+    });
+  });
+
+  return highestScenicScore;
+};
 
 console.log("#1:", part1()); // 1695
-// console.log("#2:", part2());
+console.log("#2:", part2()); // 287040

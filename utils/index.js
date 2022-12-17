@@ -11,6 +11,8 @@ const reverse = value => value.split('').reverse().join('') // prettier-ignore
 
 const sum = array => array.reduce((sum, item) => sum + item, 0);
 
+const multiply = array => array.reduce((sum, item) => sum * item);
+
 const getLowestCommonDenominator = (...numbers) => {
   const lcm = (a, b) => {
     return Math.abs(a * b) / gcd(a, b);
@@ -47,5 +49,6 @@ module.exports = {
   range,
   reverse,
   sum,
+  multiply,
   getLowestCommonDenominator
 };
