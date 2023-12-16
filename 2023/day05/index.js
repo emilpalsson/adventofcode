@@ -1,36 +1,42 @@
 const { getInput } = require("../../utils");
-const input = getInput(false, true).replaceAll("\r", "").split("\n\n");
+const input = getInput().replaceAll("\r", "").split("\n\n");
 
 const seeds = input.shift().replace("seeds: ", "").split(" ").map(Number);
 
-const parseMap = (inputString) => {
+const parseMappings = (inputString) => {
   const rows = inputString.split("\n");
   rows.shift();
 
-  const map = new Map();
-
-  rows.forEach((row) => {
+  return rows.map((row) => {
     const [destinationRangeStart, sourceRangeStart, rangeLength] = row.split(" ").map(Number);
-    for (let i = 0; i < rangeLength; i++) {
-      map.set(sourceRangeStart + i, destinationRangeStart + i);
-    }
+    return {
+      sourceRangeStart,
+      sourceRangeEnd: sourceRangeStart + rangeLength,
+      translationDiff: destinationRangeStart - sourceRangeStart,
+    };
   });
-
-  return map;
 };
 
-const seedToLocation = (seed, maps) => {
+const translateValue = (value, mapping) => {
+  const mappingRow = mapping.find((m) => value >= m.sourceRangeStart && value <= m.sourceRangeEnd);
+  if (mappingRow) {
+    return value + mappingRow.translationDiff;
+  }
+  return value;
+};
+
+const seedToLocation = (seed, mappings) => {
   let value = seed;
-  maps.forEach((map) => {
-    value = map.get(value) || value;
+  mappings.forEach((mapping) => {
+    value = translateValue(value, mapping);
   });
   return value;
 };
 
 const part1 = () => {
-  const maps = input.map(parseMap);
+  const mappings = input.map(parseMappings);
 
-  const locations = seeds.map((seed) => seedToLocation(seed, maps));
+  const locations = seeds.map((seed) => seedToLocation(seed, mappings));
 
   return Math.min(...locations);
 };
